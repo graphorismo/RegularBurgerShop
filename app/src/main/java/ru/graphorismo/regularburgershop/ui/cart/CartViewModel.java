@@ -1,16 +1,16 @@
-package ru.graphorismo.regularburgershop.ui.home;
+package ru.graphorismo.regularburgershop.ui.cart;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class HomeViewModel extends ViewModel {
+public class CartViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public HomeViewModel() {
+    public CartViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        mText.setValue("This is cart fragment");
     }
 
     public LiveData<String> getText() {

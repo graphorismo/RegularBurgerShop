@@ -1,4 +1,4 @@
-package ru.graphorismo.regularburgershop.ui.dashboard;
+package ru.graphorismo.regularburgershop.ui.coupons;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,18 +10,19 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import ru.graphorismo.regularburgershop.databinding.FragmentDashboardBinding;
+import ru.graphorismo.regularburgershop.databinding.FragmentCouponsBinding;
 
-public class DashboardFragment extends Fragment {
 
-    private FragmentDashboardBinding binding;
+public class CouponsFragment extends Fragment {
+
+    private FragmentCouponsBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        DashboardViewModel dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
+        CouponsViewModel dashboardViewModel =
+                new ViewModelProvider(this).get(CouponsViewModel.class);
 
-        binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        binding = FragmentCouponsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textDashboard;

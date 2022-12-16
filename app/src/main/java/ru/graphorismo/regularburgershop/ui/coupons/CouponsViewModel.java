@@ -1,16 +1,16 @@
-package ru.graphorismo.regularburgershop.ui.notifications;
+package ru.graphorismo.regularburgershop.ui.coupons;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class NotificationsViewModel extends ViewModel {
+public class CouponsViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public NotificationsViewModel() {
+    public CouponsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("This is coupons fragment");
     }
 
     public LiveData<String> getText() {
