@@ -1,19 +1,22 @@
 package ru.graphorismo.regularburgershop.ui.menu;
-
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+;
 import androidx.lifecycle.ViewModel;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import ru.graphorismo.regularburgershop.domain.Menu;
 
 public class MenuViewModel extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    BehaviorSubject<Menu> menuUiState =
+            BehaviorSubject.create();
 
-    public MenuViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is menu fragment");
-    }
-
-    public LiveData<String> getText() {
-        return mText;
+    void onEvent(MenuUiEvent event){
+        if (event instanceof MenuUiEvent.Load){
+            menuUiState.onNext(((MenuUiEvent.Load) event).getLoadedMenu());
+        }
     }
 }

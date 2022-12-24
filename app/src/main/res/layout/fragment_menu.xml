@@ -8,16 +8,16 @@
     android:padding="20dp">
 
     <ScrollView
-        android:id="@+id/fragmentMenu_scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <LinearLayout
+            android:id="@+id/fragmentMenu_scrollView_linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:listitem="@layout/menu_recycler_item"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="horizontal"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        </LinearLayout>
 
     </ScrollView>
 
