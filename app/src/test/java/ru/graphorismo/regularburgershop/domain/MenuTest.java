@@ -5,6 +5,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import ru.graphorismo.regularburgershop.data.Menu;
+import ru.graphorismo.regularburgershop.data.Product;
+
 public class MenuTest {
 
     @Test

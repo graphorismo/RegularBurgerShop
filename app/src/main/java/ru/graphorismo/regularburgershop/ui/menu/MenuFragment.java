@@ -5,9 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -20,8 +18,8 @@ import java.util.Set;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import ru.graphorismo.regularburgershop.databinding.FragmentMenuBinding;
-import ru.graphorismo.regularburgershop.domain.Menu;
-import ru.graphorismo.regularburgershop.domain.Product;
+import ru.graphorismo.regularburgershop.data.Menu;
+import ru.graphorismo.regularburgershop.data.Product;
 
 public class MenuFragment extends Fragment implements Observer<Menu> {
 

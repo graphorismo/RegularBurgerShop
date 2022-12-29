@@ -1,4 +1,4 @@
-package ru.graphorismo.regularburgershop.domain;
+package ru.graphorismo.regularburgershop.data;
 
 import androidx.annotation.Nullable;
 

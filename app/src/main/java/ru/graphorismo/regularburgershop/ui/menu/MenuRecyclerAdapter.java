@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ru.graphorismo.regularburgershop.R;
-import ru.graphorismo.regularburgershop.domain.Product;
+import ru.graphorismo.regularburgershop.data.Product;
 
 public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapter.ViewHolder> {
 

@@ -1,6 +1,6 @@
 package ru.graphorismo.regularburgershop.ui.menu;
 
-import ru.graphorismo.regularburgershop.domain.Menu;
+import ru.graphorismo.regularburgershop.data.Menu;
 
 public interface MenuUiEvent {
 

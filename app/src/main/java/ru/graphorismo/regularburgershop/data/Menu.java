@@ -1,12 +1,9 @@
-package ru.graphorismo.regularburgershop.domain;
+package ru.graphorismo.regularburgershop.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
-
-import ru.graphorismo.regularburgershop.domain.Product;
 
 public class Menu {
 

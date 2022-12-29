@@ -2,7 +2,7 @@ package ru.graphorismo.regularburgershop.domain;
 
 import org.junit.Test;
 import org.junit.Assert;
-import ru.graphorismo.regularburgershop.domain.Product;
+import ru.graphorismo.regularburgershop.data.Product;
 
 public class ProductTest {
 
