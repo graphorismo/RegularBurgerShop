@@ -5,52 +5,55 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Set;
+import java.util.Collections;
+import java.util.Map;
 
-import io.reactivex.rxjava3.core.Observer;
+import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import ru.graphorismo.regularburgershop.databinding.FragmentMenuBinding;
-import ru.graphorismo.regularburgershop.data.Menu;
-import ru.graphorismo.regularburgershop.data.Product;
+import ru.graphorismo.regularburgershop.ui.menu.observers.TitlesUiStateObserver;
 
-public class MenuFragment extends Fragment implements Observer<Menu> {
+@AndroidEntryPoint
+public class MenuFragment extends Fragment {
 
+    private static final String TAG = "MenuFragment";
+    
     private FragmentMenuBinding binding;
-    LinearLayout linearLayout;
+    private LinearLayout topLinearLayout;
+    private MenuViewModel menuViewModel;
+    CompositeDisposable disposables = new CompositeDisposable();
+
+    private Map<String, LinearLayout> layoutForTitles = Collections.emptyMap();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        MenuViewModel menuViewModel =
-                new ViewModelProvider(this).get(MenuViewModel.class);
+        menuViewModel = new ViewModelProvider(this).get(MenuViewModel.class);
 
         binding = FragmentMenuBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        linearLayout = binding.fragmentMenuScrollViewLinearLayout;
+        topLinearLayout = binding.fragmentMenuScrollViewLinearLayout;
 
-        menuViewModel.menuUiState.subscribe(this);
-
-        Menu menu = new Menu();
-        menu.addTitle("TITLE1");
-        menu.addProductUnderTitle(new Product("APPLE1", 10), "TITLE1");
-        menu.addProductUnderTitle(new Product("APPLE2", 20), "TITLE1");
-        menu.addTitle("TITLE2");
-        menu.addProductUnderTitle(new Product("APPLE3", 30), "TITLE2");
-        menu.addProductUnderTitle(new Product("APPLE4", 40), "TITLE2");
-
-        menuViewModel.menuUiState.onNext(menu);
-
-
-
-
+        TitlesUiStateObserver titlesUiStateObserver = new TitlesUiStateObserver(getContext());
+        menuViewModel.titlesStateBehaviorSubject.subscribe(titlesUiStateObserver);
+        Disposable disposable = titlesUiStateObserver
+                .getLoadCompleteStateBehaviorSubject().subscribe((b)->{
+                    if(b==true){
+                        layoutForTitles = titlesUiStateObserver.getLayoutsForTitles();
+                        for (LinearLayout layout: layoutForTitles.values()){
+                            topLinearLayout.addView(layout);
+                        }
+                    }
+                }
+        );
+        disposables.add(disposable);
+        menuViewModel.onEvent(new MenuUiEvent.Load());
 
         return root;
     }
@@ -59,38 +62,7 @@ public class MenuFragment extends Fragment implements Observer<Menu> {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        disposables.clear();
     }
 
-    @Override
-    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-
-    }
-
-    @Override
-    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Menu menu) {
-        Set<String> titles = menu.getTitles();
-        for (String title : titles){
-            TextView textView = new TextView(getContext());
-            textView.setText(title);
-
-            RecyclerView recyclerView = new RecyclerView(getContext());
-            MenuRecyclerAdapter adapter = new MenuRecyclerAdapter(menu.getProductsUnderTitle(title));
-            LinearLayoutManager layoutManager= new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(adapter);
-
-            linearLayout.addView(textView);
-            linearLayout.addView(recyclerView);
-        }
-    }
-
-    @Override
-    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-
-    }
-
-    @Override
-    public void onComplete() {
-
-    }
 }

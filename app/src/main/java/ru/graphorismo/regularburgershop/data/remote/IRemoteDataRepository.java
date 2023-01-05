@@ -2,10 +2,13 @@ package ru.graphorismo.regularburgershop.data.remote;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Observable;
+import retrofit2.Response;
 import ru.graphorismo.regularburgershop.data.Product;
+import ru.graphorismo.regularburgershop.data.remote.retrofit.ProductResponse;
 
 public interface IRemoteDataRepository {
 
-    public List<String> getTitles();
-    public List<Product> getProductsWithTitle(String title);
+    public Observable<Response<List<String>>> getTitles();
+    public Observable<Response<List<ProductResponse>>> getProductsWithTitle(String title);
 }
