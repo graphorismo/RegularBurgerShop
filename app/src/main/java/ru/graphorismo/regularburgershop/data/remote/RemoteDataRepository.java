@@ -1,19 +1,14 @@
 package ru.graphorismo.regularburgershop.data.remote;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Observable;
 import retrofit2.Response;
-import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.ConverterProductResponseToProduct;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.IBurgershopApi;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.ProductResponse;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.EmptyResponseException;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.NullNetworkResponseException;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.UnsuccessfulResponseException;
 
 public class RemoteDataRepository implements  IRemoteDataRepository{
 
@@ -28,12 +23,12 @@ public class RemoteDataRepository implements  IRemoteDataRepository{
     }
 
     @Override
-    public Observable<Response<List<String>>> getTitles(){
-        return api.requestTitles();
+    public Observable<Response<List<Integer>>> getIds(){
+        return api.requestIds();
     }
 
     @Override
-    public Observable<Response<List<ProductResponse>>> getProductsWithTitle(String title) {
-        return api.requestProductsWithTitle(title);
+    public Observable<Response<List<ProductResponse>>> getProductUnderId(Integer id) {
+        return api.requestProductUnderId(id);
     }
 }

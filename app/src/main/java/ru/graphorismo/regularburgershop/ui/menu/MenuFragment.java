@@ -1,10 +1,12 @@
 package ru.graphorismo.regularburgershop.ui.menu;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -14,10 +16,13 @@ import java.util.Collections;
 import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.databinding.FragmentMenuBinding;
-import ru.graphorismo.regularburgershop.ui.menu.observers.TitlesUiStateObserver;
+
 
 @AndroidEntryPoint
 public class MenuFragment extends Fragment {
@@ -40,20 +45,32 @@ public class MenuFragment extends Fragment {
 
         topLinearLayout = binding.fragmentMenuScrollViewLinearLayout;
 
-        TitlesUiStateObserver titlesUiStateObserver = new TitlesUiStateObserver(getContext());
-        menuViewModel.titlesStateBehaviorSubject.subscribe(titlesUiStateObserver);
-        Disposable disposable = titlesUiStateObserver
-                .getLoadCompleteStateBehaviorSubject().subscribe((b)->{
-                    if(b==true){
-                        layoutForTitles = titlesUiStateObserver.getLayoutsForTitles();
-                        for (LinearLayout layout: layoutForTitles.values()){
-                            topLinearLayout.addView(layout);
-                        }
+        menuViewModel.onEvent(new MenuUiEvent.Load())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<Product>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                        disposables.add(d);
                     }
-                }
-        );
-        disposables.add(disposable);
-        menuViewModel.onEvent(new MenuUiEvent.Load());
+
+                    @Override
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Product product) {
+                        TextView textView = new TextView(getContext());
+                        textView.setText("Name: "+product.getName()+", Price: "+product.getPrice());
+                        topLinearLayout.addView(textView);
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        Log.e(TAG, "onError: "+e.getMessage() );
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
 
         return root;
     }

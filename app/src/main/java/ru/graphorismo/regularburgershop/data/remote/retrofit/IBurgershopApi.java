@@ -9,9 +9,9 @@ import retrofit2.http.Query;
 
 public interface IBurgershopApi {
 
-    @GET("titles")
-    Observable<Response<List<String>>> requestTitles();
+    @GET("ids")
+    Observable<Response<List<Integer>>> requestIds();
 
-    @GET("products")
-    Observable<Response<List<ProductResponse>>> requestProductsWithTitle(@Query("title") String title);
+    @GET("product")
+    Observable<Response<List<ProductResponse>>> requestProductUnderId(@Query("id") Integer id);
 }
