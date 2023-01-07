@@ -44,8 +44,28 @@ public class MenuFragment extends Fragment {
         View root = binding.getRoot();
 
         topLinearLayout = binding.fragmentMenuScrollViewLinearLayout;
+        observeProductsFromViewModel();
 
-        menuViewModel.onEvent(new MenuUiEvent.Load())
+        binding.swipeRefreshLayout.setOnRefreshListener(()->{
+            menuViewModel.onEvent(new MenuUiEvent.Refresh());
+            binding.swipeRefreshLayout.setRefreshing(false);
+        });
+
+
+
+
+        return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+        disposables.clear();
+    }
+
+    public void observeProductsFromViewModel(){
+        menuViewModel.getProductsReplaySubject()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new Observer<Product>() {
                     @Override
@@ -70,16 +90,6 @@ public class MenuFragment extends Fragment {
 
                     }
                 });
-
-
-        return root;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-        disposables.clear();
     }
 
 }
