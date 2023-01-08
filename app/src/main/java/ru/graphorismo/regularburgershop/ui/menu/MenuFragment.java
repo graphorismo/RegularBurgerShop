@@ -1,5 +1,6 @@
 package ru.graphorismo.regularburgershop.ui.menu;
 
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,6 +51,7 @@ public class MenuFragment extends Fragment {
 
         topLinearLayout = binding.fragmentMenuScrollViewLinearLayout;
         observeProductsFromViewModel();
+        observeExceptionsFromViewModel();
 
         binding.swipeRefreshLayout.setOnRefreshListener(()->{
             menuViewModel.onEvent(new MenuUiEvent.Refresh());
@@ -64,6 +66,34 @@ public class MenuFragment extends Fragment {
         super.onDestroyView();
         binding = null;
         disposables.clear();
+    }
+
+    private void observeExceptionsFromViewModel() {
+        menuViewModel.getExceptionBehaviorSubject()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<Throwable>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                        disposables.add(d);
+                    }
+
+                    @Override
+                    public void onNext(Throwable throwable) {
+                        if(throwable != null){
+                            showErrorDialog("Error", throwable.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        Log.e(TAG, "onError: "+e.getMessage() );
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     public void observeProductsFromViewModel(){
@@ -114,6 +144,13 @@ public class MenuFragment extends Fragment {
                 adapterMap.get(title).addProduct(product);
             }
         }
+    }
+
+    private void showErrorDialog(String title, String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.show();
     }
 
 }

@@ -29,6 +29,7 @@ public class MenuViewModel extends ViewModel {
     private static final String TAG = "MenuViewModel";
 
     private final Subject<List<Product>> productsBehaviorSubject = BehaviorSubject.create();
+    private final Subject<Throwable> exceptionBehaviorSubject = BehaviorSubject.create();
 
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final IRemoteDataRepository remoteDataRepository;
@@ -80,6 +81,7 @@ public class MenuViewModel extends ViewModel {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(productsBehaviorSubject::onNext,
                                 (throwable)->{
+                                    exceptionBehaviorSubject.onNext(throwable);
                                     Log.e(TAG, "loadProducts: "+throwable.getMessage() );
                                 })
         );
@@ -88,5 +90,9 @@ public class MenuViewModel extends ViewModel {
 
     public Subject<List<Product>> getProductsBehaviorSubject() {
         return productsBehaviorSubject;
+    }
+
+    public Subject<Throwable> getExceptionBehaviorSubject() {
+        return exceptionBehaviorSubject;
     }
 }
