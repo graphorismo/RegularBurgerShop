@@ -1,6 +1,10 @@
 package ru.graphorismo.regularburgershop.ui.menu;
 
+import android.util.Log;
+
 import androidx.lifecycle.ViewModel;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -9,10 +13,11 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import io.reactivex.rxjava3.subjects.ReplaySubject;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import io.reactivex.rxjava3.subjects.Subject;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
+import ru.graphorismo.regularburgershop.data.remote.retrofit.ConverterProductResponseToProduct;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.EmptyResponseException;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.NullNetworkResponseException;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.UnsuccessfulResponseException;
@@ -23,7 +28,7 @@ public class MenuViewModel extends ViewModel {
 
     private static final String TAG = "MenuViewModel";
 
-    private final Subject<Product> productsReplaySubject = ReplaySubject.create();
+    private final Subject<List<Product>> productsBehaviorSubject = BehaviorSubject.create();
 
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final IRemoteDataRepository remoteDataRepository;
@@ -47,32 +52,41 @@ public class MenuViewModel extends ViewModel {
     }
 
     private void loadProducts(){
-        remoteDataRepository.getIds()
-                .subscribeOn(Schedulers.io())
-                .map((response)->{
-                    if( response == null) throw new NullNetworkResponseException("");
-                    if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
-                    if( response.body() == null ) throw new EmptyResponseException("");
-                    return response.body();
-                })
-                .flatMap(Observable::fromIterable)
-                .flatMap(remoteDataRepository::getProductUnderId)
-                .map((response)->{
-                    if( response == null) throw new NullNetworkResponseException("");
-                    if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
-                    if( response.body() == null ) throw new EmptyResponseException("");
-                    return response.body();
-                })
-                .flatMap(Observable::fromIterable)
-                .map((productResponse) -> {
-                    return new Product(productResponse.getName(),
-                            productResponse.getPrice());
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(productsReplaySubject);
+        disposables.add(
+                remoteDataRepository.getIds()
+                        .subscribeOn(Schedulers.io())
+                        .map((response)->{
+                            if( response == null) throw new NullNetworkResponseException("");
+                            if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
+                            if( response.body() == null ) throw new EmptyResponseException("");
+                            return response.body();
+                        })
+                        .flatMap(Observable::fromIterable)
+                        .flatMap(remoteDataRepository::getProductUnderId)
+                        .map((response)->{
+                            if( response == null) throw new NullNetworkResponseException("");
+                            if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
+                            if( response.body() == null ) throw new EmptyResponseException("");
+                            return response.body();
+                        })
+                        .flatMap(Observable::fromIterable)
+                        .map((productResponse) -> {
+                            ConverterProductResponseToProduct converterProductResponseToProduct
+                                    = new ConverterProductResponseToProduct();
+                            return converterProductResponseToProduct
+                                    .convertProductResponseToProduct(productResponse);
+                        })
+                        .toList()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(productsBehaviorSubject::onNext,
+                                (throwable)->{
+                                    Log.e(TAG, "loadProducts: "+throwable.getMessage() );
+                                })
+        );
+
     }
 
-    public Subject<Product> getProductsReplaySubject() {
-        return productsReplaySubject;
+    public Subject<List<Product>> getProductsBehaviorSubject() {
+        return productsBehaviorSubject;
     }
 }

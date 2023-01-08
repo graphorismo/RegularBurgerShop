@@ -17,8 +17,8 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
 
     ArrayList<Product> products = new ArrayList<>();
 
-    MenuRecyclerAdapter(ArrayList<Product> products){
-        this.products = products;
+    MenuRecyclerAdapter(){
+
     }
 
     @NonNull
@@ -38,6 +38,11 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
     @Override
     public int getItemCount() {
         return products.size();
+    }
+
+    public void addProduct(Product product){
+        products.add(product);
+        this.notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

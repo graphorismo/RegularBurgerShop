@@ -1,5 +1,6 @@
 package ru.graphorismo.regularburgershop.ui.menu;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,8 +12,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -34,7 +38,8 @@ public class MenuFragment extends Fragment {
     private MenuViewModel menuViewModel;
     CompositeDisposable disposables = new CompositeDisposable();
 
-    private Map<String, LinearLayout> layoutForTitles = Collections.emptyMap();
+    private Map<String, RecyclerView> recyclerViewMap = new HashMap<>();
+    private Map<String, MenuRecyclerAdapter> adapterMap = new HashMap<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -51,9 +56,6 @@ public class MenuFragment extends Fragment {
             binding.swipeRefreshLayout.setRefreshing(false);
         });
 
-
-
-
         return root;
     }
 
@@ -65,19 +67,17 @@ public class MenuFragment extends Fragment {
     }
 
     public void observeProductsFromViewModel(){
-        menuViewModel.getProductsReplaySubject()
+        menuViewModel.getProductsBehaviorSubject()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer<Product>() {
+                .subscribeWith(new Observer<List<Product>>() {
                     @Override
                     public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
                         disposables.add(d);
                     }
 
                     @Override
-                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Product product) {
-                        TextView textView = new TextView(getContext());
-                        textView.setText("Name: "+product.getName()+", Price: "+product.getPrice());
-                        topLinearLayout.addView(textView);
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Product> products) {
+                        loadContent(products);
                     }
 
                     @Override
@@ -90,6 +90,30 @@ public class MenuFragment extends Fragment {
 
                     }
                 });
+    }
+
+    private void loadContent(List<Product> products) {
+        for(Product product: products){
+            String title = product.getTitle();
+            if( ! recyclerViewMap.containsKey(title)){
+                RecyclerView recyclerView = new RecyclerView(getContext());
+                MenuRecyclerAdapter menuRecyclerAdapter = new MenuRecyclerAdapter();
+                recyclerViewMap.put(title, recyclerView);
+                adapterMap.put(title, menuRecyclerAdapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),
+                        LinearLayoutManager.HORIZONTAL, false));
+                recyclerView.setAdapter(menuRecyclerAdapter);
+                TextView textView = new TextView(getContext());
+                textView.setText(title);
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                textView.setTextColor(Color.BLACK);
+                textView.setTextSize(32);
+                topLinearLayout.addView(textView);
+                topLinearLayout.addView(recyclerView);
+            }else{
+                adapterMap.get(title).addProduct(product);
+            }
+        }
     }
 
 }
