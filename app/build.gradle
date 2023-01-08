@@ -60,4 +60,7 @@ dependencies {
 
     //swipe to refresh
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    //picasso library for images
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }

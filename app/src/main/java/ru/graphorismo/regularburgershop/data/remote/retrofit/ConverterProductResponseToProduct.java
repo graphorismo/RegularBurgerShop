@@ -10,6 +10,7 @@ public class ConverterProductResponseToProduct {
     public Product convertProductResponseToProduct(ProductResponse productResponse){
         return new Product(productResponse.getTitle(),
                 productResponse.getName(),
-                productResponse.getPrice());
+                productResponse.getPrice(),
+                productResponse.getPictureUrl());
     }
 }
