@@ -13,8 +13,6 @@ import ru.graphorismo.regularburgershop.data.remote.retrofit.ProductResponse;
 public class RemoteDataRepository implements  IRemoteDataRepository{
 
     private final IBurgershopApi api;
-    private final ConverterProductResponseToProduct converterProductResponseToProduct =
-            new ConverterProductResponseToProduct();
 
     @Inject
     public RemoteDataRepository(IBurgershopApi api)

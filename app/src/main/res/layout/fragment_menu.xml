@@ -18,6 +18,120 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="COMBO"
+                android:textAlignment="center"
+                android:textSize="32dp"
+                android:textColor="@color/black"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentMenu_recyclerView_combo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/menu_recycler_item"
+                tools:itemCount="8"
+                tools:orientation="horizontal"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HAMBURGERS"
+                android:textAlignment="center"
+                android:textSize="32dp"
+                android:textColor="@color/black"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentMenu_recyclerView_hamburger"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/menu_recycler_item"
+                tools:itemCount="8"
+                tools:orientation="horizontal"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CHEESEBURGERS"
+                android:textAlignment="center"
+                android:textSize="32dp"
+                android:textColor="@color/black"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentMenu_recyclerView_cheeseburger"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/menu_recycler_item"
+                tools:itemCount="8"
+                tools:orientation="horizontal"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FRIES"
+                android:textAlignment="center"
+                android:textSize="32dp"
+                android:textColor="@color/black"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentMenu_recyclerView_fries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/menu_recycler_item"
+                tools:itemCount="8"
+                tools:orientation="horizontal"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ICE CREAM"
+                android:textAlignment="center"
+                android:textSize="32dp"
+                android:textColor="@color/black"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentMenu_recyclerView_icecream"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/menu_recycler_item"
+                tools:itemCount="8"
+                tools:orientation="horizontal"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SODA"
+                android:textAlignment="center"
+                android:textSize="32dp"
+                android:textColor="@color/black"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentMenu_recyclerView_soda"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/menu_recycler_item"
+                tools:itemCount="8"
+                tools:orientation="horizontal"
+                />
+
         </LinearLayout>
 
     </ScrollView>

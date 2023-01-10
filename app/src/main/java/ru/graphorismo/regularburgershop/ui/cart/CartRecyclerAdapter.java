@@ -1,43 +1,40 @@
-package ru.graphorismo.regularburgershop.ui.menu;
+package ru.graphorismo.regularburgershop.ui.cart;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
-
-import javax.inject.Inject;
+import java.util.List;
 
 import ru.graphorismo.regularburgershop.R;
 import ru.graphorismo.regularburgershop.data.Product;
+import ru.graphorismo.regularburgershop.ui.menu.MenuUiEvent;
 
-public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapter.ViewHolder> {
+public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapter.ViewHolder> {
 
     private final ArrayList<Product> products = new ArrayList<>();
 
-    private final MenuViewModel menuViewModel;
+    private final CartViewModel cartViewModel;
 
-    MenuRecyclerAdapter(MenuViewModel menuViewModel){
-        this.menuViewModel = menuViewModel;
+    CartRecyclerAdapter(CartViewModel cartViewModel) {
+        this.cartViewModel = cartViewModel;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CartRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.menu_recycler_item, parent, false);
-        return new ViewHolder(view);
+                .inflate(R.layout.cart_recycler_item, parent, false);
+        return new CartRecyclerAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CartRecyclerAdapter.ViewHolder holder, int position) {
         holder.getNameTextView().setText(products.get(position).getName());
         holder.getPriceTextView().setText(products.get(position).getPrice().toString());
         ImageView imageView = holder.getPictureImageView();
@@ -45,7 +42,7 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
                 .load(products.get(position).getPictureUrl())
                 .into(imageView);
         imageView.setOnClickListener(view -> {
-            menuViewModel.onEvent(new MenuUiEvent.AddProductToCart(products.get(position)));
+            cartViewModel.onEvent(new CartUiEvent.RemoveProductFromCart(products.get(position)));
         });
 
     }
@@ -55,8 +52,8 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
         return products.size();
     }
 
-    public void addProduct(Product product){
-        products.add(product);
+    public void addProducts(List<Product> productsToAdd) {
+        products.addAll(productsToAdd);
         this.notifyDataSetChanged();
     }
 
@@ -69,11 +66,10 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
 
         public ViewHolder(View view) {
             super(view);
-            // Define click listener for the ViewHolder's View
 
-            nameTextView = view.findViewById(R.id.menuRecyclerItem_textView_name);
-            priceTextView = view.findViewById(R.id.menuRecyclerItem_textView_price);
-            pictureImageView = view.findViewById(R.id.menuRecyclerItem_imageView_picture);
+            nameTextView = view.findViewById(R.id.cartRecyclerItem_textView_name);
+            priceTextView = view.findViewById(R.id.cartRecyclerItem_textView_price);
+            pictureImageView = view.findViewById(R.id.cartRecyclerItem_imageView_picture);
         }
 
         public TextView getNameTextView() {
@@ -88,6 +84,5 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
             return pictureImageView;
         }
     }
-
-
 }
+

@@ -2,6 +2,8 @@ package ru.graphorismo.regularburgershop.ui.menu;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.List;
@@ -13,9 +15,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import io.reactivex.rxjava3.subjects.BehaviorSubject;
-import io.reactivex.rxjava3.subjects.Subject;
 import ru.graphorismo.regularburgershop.data.Product;
+import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.ConverterProductResponseToProduct;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.EmptyResponseException;
@@ -28,21 +29,28 @@ public class MenuViewModel extends ViewModel {
 
     private static final String TAG = "MenuViewModel";
 
-    private final Subject<List<Product>> productsBehaviorSubject = BehaviorSubject.create();
-    private final Subject<Throwable> exceptionBehaviorSubject = BehaviorSubject.create();
+    private final MutableLiveData<List<Product>> productsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Throwable> exceptionLiveData = new MutableLiveData<>();
 
     private final CompositeDisposable disposables = new CompositeDisposable();
+
     private final IRemoteDataRepository remoteDataRepository;
+    private final ILocalDataRepository localDataRepository;
 
     @Inject
-    public MenuViewModel(IRemoteDataRepository remoteDataRepository) {
+    public MenuViewModel(IRemoteDataRepository remoteDataRepository,
+                         ILocalDataRepository localDataRepository) {
         this.remoteDataRepository = remoteDataRepository;
+        this.localDataRepository = localDataRepository;
         loadProducts();
     }
 
     public void onEvent(MenuUiEvent event){
         if(event instanceof MenuUiEvent.Refresh){
             loadProducts();
+        }
+        else if (event instanceof MenuUiEvent.AddProductToCart){
+            addProductToCart(((MenuUiEvent.AddProductToCart) event).getProduct());
         }
     }
 
@@ -53,6 +61,7 @@ public class MenuViewModel extends ViewModel {
     }
 
     private void loadProducts(){
+        //exceptionLiveData.setValue(null);
         disposables.add(
                 remoteDataRepository.getIds()
                         .subscribeOn(Schedulers.io())
@@ -71,28 +80,29 @@ public class MenuViewModel extends ViewModel {
                             return response.body();
                         })
                         .flatMap(Observable::fromIterable)
-                        .map((productResponse) -> {
-                            ConverterProductResponseToProduct converterProductResponseToProduct
-                                    = new ConverterProductResponseToProduct();
-                            return converterProductResponseToProduct
-                                    .convertProductResponseToProduct(productResponse);
-                        })
+                        .map(ConverterProductResponseToProduct::convert)
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(productsBehaviorSubject::onNext,
+                        .subscribe(productsLiveData::setValue,
                                 (throwable)->{
-                                    exceptionBehaviorSubject.onNext(throwable);
+                                    exceptionLiveData.setValue(throwable);
                                     Log.e(TAG, "loadProducts: "+throwable.getMessage() );
                                 })
         );
 
     }
 
-    public Subject<List<Product>> getProductsBehaviorSubject() {
-        return productsBehaviorSubject;
+    private void addProductToCart(Product product){
+        Observable.fromCallable(() -> localDataRepository.saveProduct(product))
+                .subscribeOn(Schedulers.io())
+                .subscribe();
     }
 
-    public Subject<Throwable> getExceptionBehaviorSubject() {
-        return exceptionBehaviorSubject;
+    public LiveData<List<Product>> getProductsLiveData() {
+        return productsLiveData;
+    }
+
+    public LiveData<Throwable> getExceptionLiveData() {
+        return exceptionLiveData;
     }
 }

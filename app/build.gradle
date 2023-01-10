@@ -63,4 +63,11 @@ dependencies {
 
     //picasso library for images
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //android room database
+    implementation 'androidx.room:room-runtime:2.4.3'
+    implementation 'androidx.room:room-rxjava3:2.4.3'
+    annotationProcessor "androidx.room:room-compiler:2.4.3"
+    androidTestImplementation "androidx.room:room-testing:2.4.3"
+
 }

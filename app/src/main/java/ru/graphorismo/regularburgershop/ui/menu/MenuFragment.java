@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -39,8 +42,19 @@ public class MenuFragment extends Fragment {
     private MenuViewModel menuViewModel;
     CompositeDisposable disposables = new CompositeDisposable();
 
-    private Map<String, RecyclerView> recyclerViewMap = new HashMap<>();
-    private Map<String, MenuRecyclerAdapter> adapterMap = new HashMap<>();
+    private RecyclerView recyclerViewCombo;
+    private RecyclerView recyclerViewHamburger;
+    private RecyclerView recyclerViewCheeseburger;
+    private RecyclerView recyclerViewFries;
+    private RecyclerView recyclerViewIcecream;
+    private RecyclerView recyclerViewSoda;
+
+    private MenuRecyclerAdapter recyclerViewComboAdapter;
+    private MenuRecyclerAdapter recyclerViewCheeseburgerAdapter;
+    private MenuRecyclerAdapter recyclerViewFriesAdapter;
+    private MenuRecyclerAdapter recyclerViewHamburgerAdapter;
+    private MenuRecyclerAdapter recyclerViewIcecreamAdapter;
+    private MenuRecyclerAdapter recyclerViewSodaAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -48,6 +62,44 @@ public class MenuFragment extends Fragment {
 
         binding = FragmentMenuBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        recyclerViewCombo = binding.fragmentMenuRecyclerViewCombo;
+        recyclerViewCombo.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewComboAdapter = new MenuRecyclerAdapter(menuViewModel);
+        recyclerViewCombo.setAdapter(recyclerViewComboAdapter);
+
+        recyclerViewCheeseburger = binding.fragmentMenuRecyclerViewCheeseburger;
+        recyclerViewCheeseburger.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewCheeseburgerAdapter = new MenuRecyclerAdapter(menuViewModel);
+        recyclerViewCheeseburger.setAdapter(recyclerViewCheeseburgerAdapter);
+        
+        recyclerViewFries = binding.fragmentMenuRecyclerViewFries;
+        recyclerViewFries.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewFriesAdapter = new MenuRecyclerAdapter(menuViewModel);
+        recyclerViewFries.setAdapter(recyclerViewFriesAdapter);
+        
+        recyclerViewHamburger = binding.fragmentMenuRecyclerViewHamburger;
+        recyclerViewHamburger.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewHamburgerAdapter = new MenuRecyclerAdapter(menuViewModel);
+        recyclerViewHamburger.setAdapter(recyclerViewHamburgerAdapter);
+        
+        recyclerViewIcecream = binding.fragmentMenuRecyclerViewIcecream;
+        recyclerViewIcecream.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewIcecreamAdapter = new MenuRecyclerAdapter(menuViewModel);
+        recyclerViewIcecream.setAdapter(recyclerViewIcecreamAdapter);
+        
+        recyclerViewSoda = binding.fragmentMenuRecyclerViewSoda;
+        recyclerViewSoda.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewSodaAdapter = new MenuRecyclerAdapter(menuViewModel);
+        recyclerViewSoda.setAdapter(recyclerViewSodaAdapter);
+
+
 
         topLinearLayout = binding.fragmentMenuScrollViewLinearLayout;
         observeProductsFromViewModel();
@@ -58,6 +110,7 @@ public class MenuFragment extends Fragment {
             binding.swipeRefreshLayout.setRefreshing(false);
         });
 
+        Log.d(TAG, "onCreateView: Create fragment");
         return root;
     }
 
@@ -69,84 +122,36 @@ public class MenuFragment extends Fragment {
     }
 
     private void observeExceptionsFromViewModel() {
-        menuViewModel.getExceptionBehaviorSubject()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer<Throwable>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                        disposables.add(d);
-                    }
-
-                    @Override
-                    public void onNext(Throwable throwable) {
-                        if(throwable != null){
-                            showErrorDialog("Error", throwable.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                        Log.e(TAG, "onError: "+e.getMessage() );
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+        menuViewModel.getExceptionLiveData().observe(getViewLifecycleOwner(),
+                throwable -> {
+                    showDialog("Error", throwable.getMessage());
+                } );
     }
 
     public void observeProductsFromViewModel(){
-        menuViewModel.getProductsBehaviorSubject()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer<List<Product>>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                        disposables.add(d);
-                    }
-
-                    @Override
-                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Product> products) {
-                        loadContent(products);
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                        Log.e(TAG, "onError: "+e.getMessage() );
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+        menuViewModel.getProductsLiveData().observe(getViewLifecycleOwner(), this::loadContent);
     }
 
     private void loadContent(List<Product> products) {
-        for(Product product: products){
-            String title = product.getTitle();
-            if( ! recyclerViewMap.containsKey(title)){
-                RecyclerView recyclerView = new RecyclerView(getContext());
-                MenuRecyclerAdapter menuRecyclerAdapter = new MenuRecyclerAdapter();
-                recyclerViewMap.put(title, recyclerView);
-                adapterMap.put(title, menuRecyclerAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),
-                        LinearLayoutManager.HORIZONTAL, false));
-                recyclerView.setAdapter(menuRecyclerAdapter);
-                TextView textView = new TextView(getContext());
-                textView.setText(title);
-                textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                textView.setTextColor(Color.BLACK);
-                textView.setTextSize(32);
-                topLinearLayout.addView(textView);
-                topLinearLayout.addView(recyclerView);
-            }else{
-                adapterMap.get(title).addProduct(product);
+
+        for(Product product : products) {
+            if (Objects.equals(product.getTitle(), "combo")){
+                recyclerViewComboAdapter.addProduct(product);
+            }else if (Objects.equals(product.getTitle(), "cheeseburger")){
+                recyclerViewCheeseburgerAdapter.addProduct(product);
+            }else if (Objects.equals(product.getTitle(), "hamburger")){
+                recyclerViewHamburgerAdapter.addProduct(product);
+            }else if (Objects.equals(product.getTitle(), "fries")){
+                recyclerViewFriesAdapter.addProduct(product);
+            }else if (Objects.equals(product.getTitle(), "ice cream")){
+                recyclerViewIcecreamAdapter.addProduct(product);
+            }else if (Objects.equals(product.getTitle(), "soda")){
+                recyclerViewSodaAdapter.addProduct(product);
             }
         }
     }
 
-    private void showErrorDialog(String title, String message){
+    private void showDialog(String title, String message){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(title);
         builder.setMessage(message);
