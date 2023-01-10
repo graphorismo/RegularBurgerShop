@@ -47,7 +47,20 @@ public class CartViewModel extends ViewModel {
     }
 
     public void onEvent(CartUiEvent event){
+        if(event instanceof CartUiEvent.ClearCart){
+            clearCart();
+        }else if(event instanceof CartUiEvent.BuyCart){
+            clearCart();
+        }
+    }
 
+    private void clearCart(){
+        disposables.add(
+                Observable.fromAction(localDataRepository::clearSavedProducts)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe()
+        );
+        loadProducts();
     }
 
     private void loadProducts(){

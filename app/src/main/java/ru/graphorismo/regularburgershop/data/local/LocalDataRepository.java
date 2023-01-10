@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.room.ConverterBetweenProductAndProductCartData;
@@ -20,13 +19,13 @@ public class LocalDataRepository implements ILocalDataRepository {
     }
 
     @Override
-    public Completable saveProduct(Product product) {
-        return productCartRoomDatabase.productCartDao().insert(ConverterBetweenProductAndProductCartData.convertProductToProductCartData(product));
+    public void saveProduct(Product product) {
+        productCartRoomDatabase.productCartDao().insert(ConverterBetweenProductAndProductCartData.convertProductToProductCartData(product));
     }
 
     @Override
-    public Completable clearSavedProducts() {
-        return productCartRoomDatabase.productCartDao().deleteAll();
+    public void clearSavedProducts() {
+        productCartRoomDatabase.productCartDao().deleteAll();
     }
 
     @Override

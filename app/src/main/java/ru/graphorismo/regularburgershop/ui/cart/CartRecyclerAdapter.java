@@ -13,7 +13,6 @@ import java.util.List;
 
 import ru.graphorismo.regularburgershop.R;
 import ru.graphorismo.regularburgershop.data.Product;
-import ru.graphorismo.regularburgershop.ui.menu.MenuUiEvent;
 
 public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapter.ViewHolder> {
 
@@ -52,8 +51,9 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
         return products.size();
     }
 
-    public void addProducts(List<Product> productsToAdd) {
-        products.addAll(productsToAdd);
+    public void setProducts(List<Product> productsToSet) {
+        products.clear();
+        products.addAll(productsToSet);
         this.notifyDataSetChanged();
     }
 

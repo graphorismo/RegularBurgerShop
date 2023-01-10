@@ -93,9 +93,11 @@ public class MenuViewModel extends ViewModel {
     }
 
     private void addProductToCart(Product product){
-        Observable.fromCallable(() -> localDataRepository.saveProduct(product))
-                .subscribeOn(Schedulers.io())
-                .subscribe();
+        disposables.add(
+                Observable.fromAction(()->{localDataRepository.saveProduct(product);})
+                        .subscribeOn(Schedulers.io())
+                        .subscribe()
+        );
     }
 
     public LiveData<List<Product>> getProductsLiveData() {

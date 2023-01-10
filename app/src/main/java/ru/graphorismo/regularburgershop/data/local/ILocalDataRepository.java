@@ -9,8 +9,8 @@ import ru.graphorismo.regularburgershop.data.local.room.ProductCartData;
 
 public interface ILocalDataRepository {
 
-    public Completable saveProduct(Product product);
-    public Completable clearSavedProducts();
+    public void saveProduct(Product product);
+    public void clearSavedProducts();
     public Observable<List<ProductCartData>> getSavedProducts();
 
 }

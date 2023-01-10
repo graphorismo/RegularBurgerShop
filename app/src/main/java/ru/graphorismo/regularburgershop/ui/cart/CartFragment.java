@@ -1,7 +1,6 @@
 package ru.graphorismo.regularburgershop.ui.cart;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,16 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.room.ConverterBetweenProductAndProductCartData;
 import ru.graphorismo.regularburgershop.data.local.room.ProductCartData;
@@ -76,7 +71,7 @@ public class CartFragment extends Fragment {
                                         .convertProductCartDataToProduct(cartData);
                         products.add(product);
                     }
-                    recyclerAdapter.addProducts(products);
+                    recyclerAdapter.setProducts(products);
                 });
 
     }
