@@ -9,7 +9,7 @@ import retrofit2.http.Query;
 
 public interface IBurgershopApi {
 
-    @GET("ids")
+    @GET("products/ids")
     Observable<Response<List<Integer>>> requestIds();
 
     @GET("product")

@@ -1,9 +1,11 @@
 package ru.graphorismo.regularburgershop.ui.cart;
 
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -50,6 +52,10 @@ public class CartFragment extends Fragment {
         binding.fragmentCartRecyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
         binding.fragmentCartRecyclerView.setAdapter(recyclerAdapter);
 
+
+        binding.fragmentCartEditTextCoupon.setInputType(InputType.TYPE_NULL);
+        binding.fragmentCartEditTextSum.setInputType(InputType.TYPE_NULL);
+
         observeProductsFormViewModel();
 
         return root;
@@ -65,13 +71,16 @@ public class CartFragment extends Fragment {
         cartViewModel.getProductsLiveData()
                 .observe(getViewLifecycleOwner(), productCartData -> {
                     List<Product> products = new ArrayList<>();
+                    Integer sum = 0;
                     for(ProductCartData cartData : productCartData){
                         Product product =
                                 ConverterBetweenProductAndProductCartData
                                         .convertProductCartDataToProduct(cartData);
                         products.add(product);
+                        sum += cartData.getPrice();
                     }
                     recyclerAdapter.setProducts(products);
+                    if (sum > 0) binding.fragmentCartEditTextSum.setText("Sum: "+sum.toString());
                 });
 
     }
