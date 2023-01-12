@@ -1,7 +1,5 @@
 package ru.graphorismo.regularburgershop.ui.cart;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -12,16 +10,11 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import io.reactivex.rxjava3.subjects.BehaviorSubject;
-import io.reactivex.rxjava3.subjects.Subject;
-import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
-import ru.graphorismo.regularburgershop.data.local.room.ConverterBetweenProductAndProductCartData;
-import ru.graphorismo.regularburgershop.data.local.room.ProductCartData;
+import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
 
 @HiltViewModel
 public class CartViewModel extends ViewModel {
@@ -56,7 +49,7 @@ public class CartViewModel extends ViewModel {
 
     private void clearCart(){
         disposables.add(
-                Observable.fromAction(localDataRepository::clearSavedProducts)
+                Observable.fromAction(localDataRepository::clearSavedCartProducts)
                         .subscribeOn(Schedulers.io())
                         .subscribe()
         );
@@ -65,7 +58,7 @@ public class CartViewModel extends ViewModel {
 
     private void loadProducts(){
         disposables.add(
-                localDataRepository.getSavedProducts()
+                localDataRepository.getSavedCartProducts()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(productsLiveData::setValue)

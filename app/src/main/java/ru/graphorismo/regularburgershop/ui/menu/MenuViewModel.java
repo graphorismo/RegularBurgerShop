@@ -61,9 +61,8 @@ public class MenuViewModel extends ViewModel {
     }
 
     private void loadProducts(){
-        //exceptionLiveData.setValue(null);
         disposables.add(
-                remoteDataRepository.getIds()
+                remoteDataRepository.getProductsIds()
                         .subscribeOn(Schedulers.io())
                         .map((response)->{
                             if( response == null) throw new NullNetworkResponseException("");
@@ -71,6 +70,7 @@ public class MenuViewModel extends ViewModel {
                             if( response.body() == null ) throw new EmptyResponseException("");
                             return response.body();
                         })
+                        .doOnNext(integers -> {localDataRepository.clearSavedCacheProducts();})
                         .flatMap(Observable::fromIterable)
                         .flatMap(remoteDataRepository::getProductUnderId)
                         .map((response)->{
@@ -81,6 +81,7 @@ public class MenuViewModel extends ViewModel {
                         })
                         .flatMap(Observable::fromIterable)
                         .map(ConverterProductResponseToProduct::convert)
+                        .doOnNext(localDataRepository::saveProductIntoCache)
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(productsLiveData::setValue,
@@ -94,7 +95,7 @@ public class MenuViewModel extends ViewModel {
 
     private void addProductToCart(Product product){
         disposables.add(
-                Observable.fromAction(()->{localDataRepository.saveProduct(product);})
+                Observable.fromAction(()->{localDataRepository.saveProductIntoCart(product);})
                         .subscribeOn(Schedulers.io())
                         .subscribe()
         );

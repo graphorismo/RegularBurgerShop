@@ -6,7 +6,6 @@ import androidx.room.Room;
 
 import javax.inject.Singleton;
 
-import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -17,7 +16,8 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
 import ru.graphorismo.regularburgershop.data.local.LocalDataRepository;
-import ru.graphorismo.regularburgershop.data.local.room.ProductCartRoomDatabase;
+import ru.graphorismo.regularburgershop.data.local.room.cache.CacheRoomDatabase;
+import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartRoomDatabase;
 import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.RemoteDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.IBurgershopApi;
@@ -26,11 +26,13 @@ import ru.graphorismo.regularburgershop.data.remote.retrofit.IBurgershopApi;
 @InstallIn(SingletonComponent.class)
 public class AppModule {
 
+    @Singleton
     @Provides
     IRemoteDataRepository provideIRemoteDataRepository(RemoteDataRepository remoteDataRepository){
         return remoteDataRepository;
     }
 
+    @Singleton
     @Provides
     Retrofit providesRetrofit(){
         return new Retrofit.Builder()
@@ -40,19 +42,33 @@ public class AppModule {
                 .build();
     }
 
+    @Singleton
     @Provides
     IBurgershopApi providesIBurgershopApi(Retrofit retrofit){
         return retrofit.create(IBurgershopApi.class);
     }
 
+    @Singleton
     @Provides
     ILocalDataRepository provideILocalDatabaseRepository(LocalDataRepository localDataRepository){
         return localDataRepository;
     }
 
+    @Singleton
     @Provides
     ProductCartRoomDatabase providesProductCartRoomDatabase(@ApplicationContext Context context){
         return Room.databaseBuilder(context,
-                ProductCartRoomDatabase.class, "productCartRoomDatabase").build();
+                ProductCartRoomDatabase.class, "productCartRoomDatabase")
+                .fallbackToDestructiveMigration()
+                .build();
+    }
+
+    @Singleton
+    @Provides
+    CacheRoomDatabase providesProductCacheRoomDatabase(@ApplicationContext Context context){
+        return Room.databaseBuilder(context,
+                CacheRoomDatabase.class, "productCacheRoomDatabase")
+                .fallbackToDestructiveMigration()
+                .build();
     }
 }

@@ -5,7 +5,6 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -18,8 +17,8 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import ru.graphorismo.regularburgershop.data.Product;
-import ru.graphorismo.regularburgershop.data.local.room.ConverterBetweenProductAndProductCartData;
-import ru.graphorismo.regularburgershop.data.local.room.ProductCartData;
+import ru.graphorismo.regularburgershop.data.local.room.cart.ConverterBetweenProductAndProductCartData;
+import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
 import ru.graphorismo.regularburgershop.databinding.FragmentCartBinding;
 
 @AndroidEntryPoint

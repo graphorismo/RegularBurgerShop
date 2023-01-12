@@ -1,4 +1,4 @@
-package ru.graphorismo.regularburgershop.data.local.room;
+package ru.graphorismo.regularburgershop.data.local.room.cart;
 
 import ru.graphorismo.regularburgershop.data.Product;
 
