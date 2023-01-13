@@ -22,7 +22,7 @@ public interface CacheDao {
     void deleteAllProducts();
 
     @Query("SELECT * FROM ProductCacheData")
-    Observable<List<ProductCacheData>> getAllProducts();
+    Single<List<ProductCacheData>> getAllProducts();
 
     @Query("SELECT * FROM ProductCacheData WHERE name = :productName")
     Single<List<ProductCacheData>> getProductsUnderName(String productName);
@@ -34,7 +34,7 @@ public interface CacheDao {
     void deleteAllCoupons();
 
     @Query("SELECT * FROM CouponCacheData")
-    Observable<List<CouponCacheData>> getAllCoupons();
+    Single<List<CouponCacheData>> getAllCoupons();
 
     @Query("SELECT * FROM CouponCacheData WHERE couponName = :nameOfCoupon")
     Observable<List<CouponCacheData>> getCouponsUnderName(String nameOfCoupon);

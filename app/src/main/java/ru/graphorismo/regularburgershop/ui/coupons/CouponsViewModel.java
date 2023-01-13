@@ -17,6 +17,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import ru.graphorismo.regularburgershop.data.Coupon;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
+import ru.graphorismo.regularburgershop.data.local.room.cache.coupon.ConverterBetweenCouponAndCouponCacheData;
+import ru.graphorismo.regularburgershop.data.local.room.cache.product.ConverterBetweenProductAndProductCacheData;
 import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.ConverterBetweenCouponAndCouponResponse;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.EmptyResponseException;
@@ -51,36 +53,19 @@ public class CouponsViewModel extends ViewModel {
 
     void loadCoupons(){
         disposables.add(
-                remoteDataRepository.getCouponsIds()
+                Observable.fromSingle(localDataRepository.getCacheCoupons())
                         .subscribeOn(Schedulers.io())
-                        .map((response)->{
-                            if( response == null) throw new NullNetworkResponseException("");
-                            if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
-                            if( response.body() == null ) throw new EmptyResponseException("");
-                            return response.body();
-                        })
-                        .doOnNext(integers -> {localDataRepository.clearSavedCacheCoupons();})
                         .flatMap(Observable::fromIterable)
-                        .flatMap(remoteDataRepository::getCouponUnderId)
-                        .map((response)->{
-                            if( response == null) throw new NullNetworkResponseException("");
-                            if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
-                            if( response.body() == null ) throw new EmptyResponseException("");
-                            return response.body();
-                        })
-                        .flatMap(Observable::fromIterable)
-                        .flatMap(couponResponse -> Observable.fromSingle(
-                                ConverterBetweenCouponAndCouponResponse
-                                .convertCouponResponseToCoupon(couponResponse,
-                                        localDataRepository)))
-                        .doOnNext(localDataRepository::saveCouponIntoCache)
+                        .flatMap(couponCacheData ->
+                                Observable.fromSingle(ConverterBetweenCouponAndCouponCacheData
+                                        .convertFromCouponCacheDataToCoupon(couponCacheData,
+                                                localDataRepository)))
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(coupons -> couponsLiveData.setValue(coupons),
-                                (throwable)->{
-                                    exceptionLiveData.setValue(throwable);
-                                    Log.e(TAG, "loadProducts: "+throwable.getMessage() );
-                                })
+                        .subscribe(coupons -> {
+                            couponsLiveData.setValue(coupons);
+                        })
+
         );
     }
 

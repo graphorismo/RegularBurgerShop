@@ -38,16 +38,8 @@ public class MenuFragment extends Fragment {
     private static final String TAG = "MenuFragment";
     
     private FragmentMenuBinding binding;
-    private LinearLayout topLinearLayout;
     private MenuViewModel menuViewModel;
     CompositeDisposable disposables = new CompositeDisposable();
-
-    private RecyclerView recyclerViewCombo;
-    private RecyclerView recyclerViewHamburger;
-    private RecyclerView recyclerViewCheeseburger;
-    private RecyclerView recyclerViewFries;
-    private RecyclerView recyclerViewIcecream;
-    private RecyclerView recyclerViewSoda;
 
     private MenuRecyclerAdapter recyclerViewComboAdapter;
     private MenuRecyclerAdapter recyclerViewCheeseburgerAdapter;
@@ -63,45 +55,44 @@ public class MenuFragment extends Fragment {
         binding = FragmentMenuBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        recyclerViewCombo = binding.fragmentMenuRecyclerViewCombo;
+        RecyclerView recyclerViewCombo = binding.fragmentMenuRecyclerViewCombo;
         recyclerViewCombo.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         recyclerViewComboAdapter = new MenuRecyclerAdapter(menuViewModel);
         recyclerViewCombo.setAdapter(recyclerViewComboAdapter);
 
-        recyclerViewCheeseburger = binding.fragmentMenuRecyclerViewCheeseburger;
+        RecyclerView recyclerViewCheeseburger = binding.fragmentMenuRecyclerViewCheeseburger;
         recyclerViewCheeseburger.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         recyclerViewCheeseburgerAdapter = new MenuRecyclerAdapter(menuViewModel);
         recyclerViewCheeseburger.setAdapter(recyclerViewCheeseburgerAdapter);
-        
-        recyclerViewFries = binding.fragmentMenuRecyclerViewFries;
+
+        RecyclerView recyclerViewFries = binding.fragmentMenuRecyclerViewFries;
         recyclerViewFries.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         recyclerViewFriesAdapter = new MenuRecyclerAdapter(menuViewModel);
         recyclerViewFries.setAdapter(recyclerViewFriesAdapter);
-        
-        recyclerViewHamburger = binding.fragmentMenuRecyclerViewHamburger;
+
+        RecyclerView recyclerViewHamburger = binding.fragmentMenuRecyclerViewHamburger;
         recyclerViewHamburger.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         recyclerViewHamburgerAdapter = new MenuRecyclerAdapter(menuViewModel);
         recyclerViewHamburger.setAdapter(recyclerViewHamburgerAdapter);
-        
-        recyclerViewIcecream = binding.fragmentMenuRecyclerViewIcecream;
+
+        RecyclerView recyclerViewIcecream = binding.fragmentMenuRecyclerViewIcecream;
         recyclerViewIcecream.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         recyclerViewIcecreamAdapter = new MenuRecyclerAdapter(menuViewModel);
         recyclerViewIcecream.setAdapter(recyclerViewIcecreamAdapter);
-        
-        recyclerViewSoda = binding.fragmentMenuRecyclerViewSoda;
+
+        RecyclerView recyclerViewSoda = binding.fragmentMenuRecyclerViewSoda;
         recyclerViewSoda.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         recyclerViewSodaAdapter = new MenuRecyclerAdapter(menuViewModel);
         recyclerViewSoda.setAdapter(recyclerViewSodaAdapter);
 
 
-
-        topLinearLayout = binding.fragmentMenuScrollViewLinearLayout;
+        LinearLayout topLinearLayout = binding.fragmentMenuScrollViewLinearLayout;
         observeProductsFromViewModel();
         observeExceptionsFromViewModel();
 

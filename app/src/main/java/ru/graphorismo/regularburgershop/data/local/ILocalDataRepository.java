@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import ru.graphorismo.regularburgershop.data.Coupon;
 import ru.graphorismo.regularburgershop.data.Product;
+import ru.graphorismo.regularburgershop.data.local.room.cache.coupon.CouponCacheData;
 import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
 import ru.graphorismo.regularburgershop.data.local.room.cache.product.ProductCacheData;
 
@@ -17,11 +18,10 @@ public interface ILocalDataRepository {
 
     public void saveProductIntoCache(Product product);
     public void clearSavedCacheProducts();
-    public Observable<List<ProductCacheData>> getSavedCacheProducts();
-
-    Single<List<ProductCacheData>> getProductCacheUnderName(String productName);
+    public Single<List<ProductCacheData>> getCacheProducts();
+    Single<List<ProductCacheData>> getCacheProductUnderName(String productName);
 
     public void saveCouponIntoCache(Coupon coupon);
-
     public void clearSavedCacheCoupons();
+    public Single<List<CouponCacheData>> getCacheCoupons();
 }

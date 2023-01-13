@@ -17,6 +17,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
+import ru.graphorismo.regularburgershop.data.local.room.cache.product.ConverterBetweenProductAndProductCacheData;
 import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.ConverterProductResponseToProduct;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.EmptyResponseException;
@@ -42,12 +43,12 @@ public class MenuViewModel extends ViewModel {
                          ILocalDataRepository localDataRepository) {
         this.remoteDataRepository = remoteDataRepository;
         this.localDataRepository = localDataRepository;
-        loadProducts();
+        loadProductsFromCache();
     }
 
     public void onEvent(MenuUiEvent event){
         if(event instanceof MenuUiEvent.Refresh){
-            loadProducts();
+            loadProductsFromCache();
         }
         else if (event instanceof MenuUiEvent.AddProductToCart){
             addProductToCart(((MenuUiEvent.AddProductToCart) event).getProduct());
@@ -60,35 +61,15 @@ public class MenuViewModel extends ViewModel {
         disposables.clear();
     }
 
-    private void loadProducts(){
+    private void loadProductsFromCache(){
         disposables.add(
-                remoteDataRepository.getProductsIds()
+                Observable.fromSingle(localDataRepository.getCacheProducts())
                         .subscribeOn(Schedulers.io())
-                        .map((response)->{
-                            if( response == null) throw new NullNetworkResponseException("");
-                            if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
-                            if( response.body() == null ) throw new EmptyResponseException("");
-                            return response.body();
-                        })
-                        .doOnNext(integers -> {localDataRepository.clearSavedCacheProducts();})
                         .flatMap(Observable::fromIterable)
-                        .flatMap(remoteDataRepository::getProductUnderId)
-                        .map((response)->{
-                            if( response == null) throw new NullNetworkResponseException("");
-                            if( ! response.isSuccessful()) throw new UnsuccessfulResponseException("");
-                            if( response.body() == null ) throw new EmptyResponseException("");
-                            return response.body();
-                        })
-                        .flatMap(Observable::fromIterable)
-                        .map(ConverterProductResponseToProduct::convert)
-                        .doOnNext(localDataRepository::saveProductIntoCache)
+                        .map(ConverterBetweenProductAndProductCacheData::convertFromProductCacheDataToProduct)
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(productsLiveData::setValue,
-                                (throwable)->{
-                                    exceptionLiveData.setValue(throwable);
-                                    Log.e(TAG, "loadProducts: "+throwable.getMessage() );
-                                })
+                        .subscribe(productsLiveData::setValue)
         );
 
     }

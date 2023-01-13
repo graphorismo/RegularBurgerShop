@@ -44,9 +44,10 @@ public class CouponsRecyclerAdapter extends RecyclerView.Adapter<CouponsRecycler
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.getCouponEditText().setText(coupons.get(position).getCouponName());
-        holder.getProductEditText().setText(coupons.get(position).getProduct().getName());
-        holder.getDiscountEditText().setText(coupons.get(position).getDiscountPercents().toString());
+        holder.getCouponEditText().setText("Coupon: "+coupons.get(position).getCouponName());
+        holder.getProductEditText().setText("Product: "+coupons.get(position).getProduct().getName());
+        holder.getDiscountEditText()
+                .setText("Discount: -"+coupons.get(position).getDiscountPercents().toString()+"%");
         ImageView imageView = holder.getProductImageView();
         Picasso.get()
                 .load(coupons.get(position).getProduct().getPictureUrl())

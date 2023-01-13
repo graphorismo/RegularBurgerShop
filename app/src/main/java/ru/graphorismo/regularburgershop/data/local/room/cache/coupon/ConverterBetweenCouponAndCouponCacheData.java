@@ -2,7 +2,6 @@ package ru.graphorismo.regularburgershop.data.local.room.cache.coupon;
 
 import java.util.List;
 
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import ru.graphorismo.regularburgershop.data.Coupon;
@@ -19,7 +18,7 @@ public abstract class ConverterBetweenCouponAndCouponCacheData {
 
     public static Single<Coupon> convertFromCouponCacheDataToCoupon(CouponCacheData couponCacheData, ILocalDataRepository localDataRepository){
         String productName = couponCacheData.getProductName();
-        Single<List<ProductCacheData>> productCacheDataListObservable = localDataRepository.getProductCacheUnderName(productName);
+        Single<List<ProductCacheData>> productCacheDataListObservable = localDataRepository.getCacheProductUnderName(productName);
         return productCacheDataListObservable
                 .subscribeOn(Schedulers.computation())
                 .map(productCacheDataList -> {

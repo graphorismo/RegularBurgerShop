@@ -10,6 +10,7 @@ import ru.graphorismo.regularburgershop.data.Coupon;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.room.cache.CacheRoomDatabase;
 import ru.graphorismo.regularburgershop.data.local.room.cache.coupon.ConverterBetweenCouponAndCouponCacheData;
+import ru.graphorismo.regularburgershop.data.local.room.cache.coupon.CouponCacheData;
 import ru.graphorismo.regularburgershop.data.local.room.cart.ConverterBetweenProductAndProductCartData;
 import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
 import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartRoomDatabase;
@@ -53,16 +54,16 @@ public class LocalDataRepository implements ILocalDataRepository {
 
     @Override
     public void clearSavedCacheProducts() {
-
+        cacheRoomDatabase.getCacheDao().deleteAllProducts();
     }
 
     @Override
-    public Observable<List<ProductCacheData>> getSavedCacheProducts() {
-        return null;
+    public Single<List<ProductCacheData>> getCacheProducts() {
+        return cacheRoomDatabase.getCacheDao().getAllProducts();
     }
 
     @Override
-    public Single<List<ProductCacheData>> getProductCacheUnderName(String productName) {
+    public Single<List<ProductCacheData>> getCacheProductUnderName(String productName) {
         return cacheRoomDatabase.getCacheDao().getProductsUnderName(productName);
     }
 
@@ -76,5 +77,10 @@ public class LocalDataRepository implements ILocalDataRepository {
     @Override
     public void clearSavedCacheCoupons() {
         cacheRoomDatabase.getCacheDao().deleteAllCoupons();
+    }
+
+    @Override
+    public Single<List<CouponCacheData>> getCacheCoupons() {
+        return cacheRoomDatabase.getCacheDao().getAllCoupons();
     }
 }
