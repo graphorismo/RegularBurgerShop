@@ -20,6 +20,7 @@ public interface ILocalDataRepository {
     public void clearSavedCacheProducts();
     public Single<List<ProductCacheData>> getCacheProducts();
     Single<List<ProductCacheData>> getCacheProductUnderName(String productName);
+    Single<List<ProductCacheData>> getCacheProductUnderTitle(String title);
 
     public void saveCouponIntoCache(Coupon coupon);
     public void clearSavedCacheCoupons();

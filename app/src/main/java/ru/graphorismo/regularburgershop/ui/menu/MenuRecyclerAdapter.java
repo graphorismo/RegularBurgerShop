@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -22,10 +25,8 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
 
     private final ArrayList<Product> products = new ArrayList<>();
 
-    private final MenuViewModel menuViewModel;
+    MenuRecyclerAdapter(){
 
-    MenuRecyclerAdapter(MenuViewModel menuViewModel){
-        this.menuViewModel = menuViewModel;
     }
 
     @NonNull
@@ -45,7 +46,7 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
                 .load(products.get(position).getPictureUrl())
                 .into(imageView);
         imageView.setOnClickListener(view -> {
-            menuViewModel.onEvent(new MenuUiEvent.AddProductToCart(products.get(position)));
+            EventBus.getDefault().post(new MenuUiEvent.AddProductToCart(products.get(position)));
         });
 
     }
@@ -55,8 +56,9 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
         return products.size();
     }
 
-    public void addProduct(Product product){
-        products.add(product);
+    public void setProducts(List<Product> productsToAdd) {
+        products.clear();
+        products.addAll(productsToAdd);
         this.notifyDataSetChanged();
     }
 
@@ -71,8 +73,8 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
             super(view);
             // Define click listener for the ViewHolder's View
 
-            nameTextView = view.findViewById(R.id.menuRecyclerItem_textView_name);
-            priceTextView = view.findViewById(R.id.menuRecyclerItem_textView_price);
+            nameTextView = view.findViewById(R.id.menuRecyclerItem_textView_nameField);
+            priceTextView = view.findViewById(R.id.menuRecyclerItem_textView_priceField);
             pictureImageView = view.findViewById(R.id.menuRecyclerItem_imageView_picture);
         }
 

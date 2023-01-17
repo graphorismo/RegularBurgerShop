@@ -68,6 +68,11 @@ public class LocalDataRepository implements ILocalDataRepository {
     }
 
     @Override
+    public Single<List<ProductCacheData>> getCacheProductUnderTitle(String title) {
+        return cacheRoomDatabase.getCacheDao().getProductsUnderTitle(title);
+    }
+
+    @Override
     public void saveCouponIntoCache(Coupon coupon) {
         cacheRoomDatabase.getCacheDao()
                 .insertCoupon(ConverterBetweenCouponAndCouponCacheData

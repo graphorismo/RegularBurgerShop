@@ -6,6 +6,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -15,6 +19,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import io.reactivex.rxjava3.subjects.Subject;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
 import ru.graphorismo.regularburgershop.data.local.room.cache.product.ConverterBetweenProductAndProductCacheData;
@@ -30,8 +36,7 @@ public class MenuViewModel extends ViewModel {
 
     private static final String TAG = "MenuViewModel";
 
-    private final MutableLiveData<List<Product>> productsLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Throwable> exceptionLiveData = new MutableLiveData<>();
+    private final BehaviorSubject<List<Product>> productsBehaviorSubject = BehaviorSubject.create();
 
     private final CompositeDisposable disposables = new CompositeDisposable();
 
@@ -43,33 +48,43 @@ public class MenuViewModel extends ViewModel {
                          ILocalDataRepository localDataRepository) {
         this.remoteDataRepository = remoteDataRepository;
         this.localDataRepository = localDataRepository;
-        loadProductsFromCache();
+        productsBehaviorSubject.doOnSubscribe((x)->{
+            Log.d(TAG, "MenuViewModel: productsBehaviorSubject  subscribed");
+        });
+        EventBus.getDefault().register(this);
+        loadProductsUnderTitleFromCache("combo");
     }
 
-    public void onEvent(MenuUiEvent event){
-        if(event instanceof MenuUiEvent.Refresh){
-            loadProductsFromCache();
-        }
-        else if (event instanceof MenuUiEvent.AddProductToCart){
-            addProductToCart(((MenuUiEvent.AddProductToCart) event).getProduct());
-        }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void reactOnAddProductToCartEvent(MenuUiEvent.AddProductToCart event){
+        addProductToCart(event.getProduct());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void reactOnChangeOfShowedProductsTitleEvent(
+            MenuUiEvent.ChangeOfShowedProductsTitle event){
+        loadProductsUnderTitleFromCache(event.getTitle());
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
+        EventBus.getDefault().unregister(this);
         disposables.clear();
     }
 
-    private void loadProductsFromCache(){
+    private void loadProductsUnderTitleFromCache(String title){
         disposables.add(
-                Observable.fromSingle(localDataRepository.getCacheProducts())
+                Observable.fromSingle(localDataRepository.getCacheProductUnderTitle(title))
                         .subscribeOn(Schedulers.io())
                         .flatMap(Observable::fromIterable)
                         .map(ConverterBetweenProductAndProductCacheData::convertFromProductCacheDataToProduct)
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(productsLiveData::setValue)
+                        .subscribe(productsBehaviorSubject::onNext,
+                                throwable -> {
+                                    Log.e(TAG,"loadProductsUnderTitleFromCache Error:"+throwable.getMessage());
+                        })
         );
 
     }
@@ -82,11 +97,7 @@ public class MenuViewModel extends ViewModel {
         );
     }
 
-    public LiveData<List<Product>> getProductsLiveData() {
-        return productsLiveData;
-    }
-
-    public LiveData<Throwable> getExceptionLiveData() {
-        return exceptionLiveData;
+    public BehaviorSubject<List<Product>> getProductsBehaviorSubject() {
+        return productsBehaviorSubject;
     }
 }

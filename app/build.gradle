@@ -70,4 +70,7 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:2.4.3"
     androidTestImplementation "androidx.room:room-testing:2.4.3"
 
+    //event bus
+    implementation "org.greenrobot:eventbus:3.3.1"
+
 }

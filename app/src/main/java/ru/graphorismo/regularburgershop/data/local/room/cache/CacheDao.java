@@ -27,6 +27,9 @@ public interface CacheDao {
     @Query("SELECT * FROM ProductCacheData WHERE name = :productName")
     Single<List<ProductCacheData>> getProductsUnderName(String productName);
 
+    @Query("SELECT * FROM ProductCacheData WHERE title = :productTitle")
+    Single<List<ProductCacheData>> getProductsUnderTitle(String productTitle);
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertCoupon(CouponCacheData couponCacheData);
 
