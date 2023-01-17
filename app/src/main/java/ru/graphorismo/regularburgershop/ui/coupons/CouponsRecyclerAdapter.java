@@ -15,9 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import ru.graphorismo.regularburgershop.R;
 import ru.graphorismo.regularburgershop.data.Coupon;
 
@@ -26,11 +30,11 @@ public class CouponsRecyclerAdapter extends RecyclerView.Adapter<CouponsRecycler
     private final List<Coupon> coupons = new ArrayList<>();
     private Integer chosenCouponPosition = -1;
     private final CouponsViewModel couponsViewModel;
-    private final LifecycleOwner lifecycleOwner;
+    private final CompositeDisposable disposables;
 
-    CouponsRecyclerAdapter(CouponsViewModel couponsViewModel, LifecycleOwner lifecycleOwner){
+    CouponsRecyclerAdapter(CouponsViewModel couponsViewModel, CompositeDisposable disposables){
         this.couponsViewModel = couponsViewModel;
-        this.lifecycleOwner = lifecycleOwner;
+        this.disposables = disposables;
         observeChosenCouponFromViewModel();
     }
 
@@ -44,17 +48,17 @@ public class CouponsRecyclerAdapter extends RecyclerView.Adapter<CouponsRecycler
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.getCouponEditText().setText("Coupon: "+coupons.get(position).getCouponName());
-        holder.getProductEditText().setText("Product: "+coupons.get(position).getProduct().getName());
+        holder.getCouponEditText().setText(coupons.get(position).getCouponName());
+        holder.getProductEditText().setText(coupons.get(position).getProduct().getName());
         holder.getDiscountEditText()
-                .setText("Discount: -"+coupons.get(position).getDiscountPercents().toString()+"%");
+                .setText("-"+coupons.get(position).getDiscountPercents().toString()+"%");
         ImageView imageView = holder.getProductImageView();
         Picasso.get()
                 .load(coupons.get(position).getProduct().getPictureUrl())
                 .into(imageView);
         holder.getCardView().setCardBackgroundColor(Color.WHITE);
         holder.getCardView().setOnClickListener(view -> {
-            couponsViewModel.onEvent(new CouponsUIEvent.CouponChosen(coupons.get(position)));
+            EventBus.getDefault().post(new CouponsUIEvent.CouponChosen(coupons.get(position)));
         });
         if(chosenCouponPosition != -1 && position == chosenCouponPosition){
             holder.getCardView().setCardBackgroundColor(Color.GRAY);
@@ -75,11 +79,17 @@ public class CouponsRecyclerAdapter extends RecyclerView.Adapter<CouponsRecycler
     }
 
     void observeChosenCouponFromViewModel(){
-        couponsViewModel.getChosenCouponLiveData().observe(lifecycleOwner, (coupon)->{
-            Integer position = coupons.indexOf(coupon);
-            if (position != -1) chosenCouponPosition = position;
-            this.notifyDataSetChanged();
-        });
+        disposables.add(
+                couponsViewModel.getChosenCouponBehaviorSubject()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe((coupon)->{
+                            Integer position = coupons.indexOf(coupon);
+                            if (position != -1) {
+                                chosenCouponPosition = position;
+                                this.notifyDataSetChanged();
+                            }
+                        })
+        );
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

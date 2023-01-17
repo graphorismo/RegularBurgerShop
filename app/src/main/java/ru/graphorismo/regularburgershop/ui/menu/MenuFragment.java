@@ -66,6 +66,7 @@ public class MenuFragment extends Fragment {
                         LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(recyclerAdapter);
         observeProductsFromViewModel();
+        EventBus.getDefault().post(new MenuUiEvent.ChangeOfShowedProductsTitle("combo"));
         return root;
     }
 

@@ -12,25 +12,40 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:padding="20dp">
 
-        <ImageView
-            android:id="@+id/couponsRecyclerItem_imageView_product"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_baseline_lunch_dining_24"
-            android:layout_weight="0.8"/>
+            app:cardCornerRadius="20dp"
+            android:layout_weight="0.6">
+
+            <ImageView
+                android:id="@+id/couponsRecyclerItem_imageView_product"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_baseline_lunch_dining_24"
+                android:scaleType="fitXY"/>
+
+        </androidx.cardview.widget.CardView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.85"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="0.2">
+            android:layout_weight="0.3">
 
             <EditText
                 android:id="@+id/couponsRecyclerItem_editText_coupon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textSize="16dp"
                 android:layout_weight="0.3"
                 android:hint="COUPON"
                 android:textColor="@color/black"/>
@@ -39,6 +54,7 @@
                 android:id="@+id/couponsRecyclerItem_editText_product"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textSize="16dp"
                 android:layout_weight="0.3"
                 android:hint="PRODUCT"
                 android:textColor="@color/black"/>
@@ -47,6 +63,7 @@
                 android:id="@+id/couponsRecyclerItem_editText_discount"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textSize="16dp"
                 android:layout_weight="0.3"
                 android:hint="DISCOUNT"
                 android:textColor="@color/black"/>

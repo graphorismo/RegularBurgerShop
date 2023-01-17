@@ -4,6 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -13,6 +17,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
 import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
 
@@ -20,31 +25,33 @@ import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
 public class CartViewModel extends ViewModel {
 
     private static final String TAG = "CartViewModel";
-
-    private final MutableLiveData<List<ProductCartData>> productsLiveData = new MutableLiveData<>();
-
+    private final BehaviorSubject<List<ProductCartData>> productsBehaviorSubject =
+            BehaviorSubject.create();
     private final ILocalDataRepository localDataRepository;
-
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Inject
     public CartViewModel(ILocalDataRepository localDataRepository) {
         this.localDataRepository = localDataRepository;
+        EventBus.getDefault().register(this);
         loadProducts();
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
+        EventBus.getDefault().unregister(this);
         disposables.clear();
     }
 
-    public void onEvent(CartUiEvent event){
-        if(event instanceof CartUiEvent.ClearCart){
-            clearCart();
-        }else if(event instanceof CartUiEvent.BuyCart){
-            clearCart();
-        }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void reactOnClearCartEvent(CartUiEvent.ClearCart event){
+        clearCart();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void reactOnBuyCartEvent(CartUiEvent.BuyCart event){
+        clearCart();
     }
 
     private void clearCart(){
@@ -61,11 +68,11 @@ public class CartViewModel extends ViewModel {
                 localDataRepository.getSavedCartProducts()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(productsLiveData::setValue)
+                        .subscribe(productsBehaviorSubject::onNext)
         );
     }
 
-    public LiveData<List<ProductCartData>> getProductsLiveData() {
-        return productsLiveData;
+    public BehaviorSubject<List<ProductCartData>> getProductsBehaviorSubject() {
+        return productsBehaviorSubject;
     }
 }

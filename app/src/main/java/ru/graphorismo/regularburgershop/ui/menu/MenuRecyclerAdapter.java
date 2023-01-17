@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -45,7 +46,7 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
         Picasso.get()
                 .load(products.get(position).getPictureUrl())
                 .into(imageView);
-        imageView.setOnClickListener(view -> {
+        holder.getConstraintLayout().setOnClickListener(view -> {
             EventBus.getDefault().post(new MenuUiEvent.AddProductToCart(products.get(position)));
         });
 
@@ -67,6 +68,7 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
         private final TextView nameTextView;
         private final TextView priceTextView;
         private final ImageView pictureImageView;
+        private final ConstraintLayout constraintLayout;
 
 
         public ViewHolder(View view) {
@@ -76,6 +78,7 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
             nameTextView = view.findViewById(R.id.menuRecyclerItem_textView_nameField);
             priceTextView = view.findViewById(R.id.menuRecyclerItem_textView_priceField);
             pictureImageView = view.findViewById(R.id.menuRecyclerItem_imageView_picture);
+            constraintLayout = view.findViewById(R.id.menuRecyclerItem_constraintLayout);
         }
 
         public TextView getNameTextView() {
@@ -88,6 +91,10 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
 
         public ImageView getPictureImageView() {
             return pictureImageView;
+        }
+
+        public ConstraintLayout getConstraintLayout() {
+            return constraintLayout;
         }
     }
 

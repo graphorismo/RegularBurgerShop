@@ -13,29 +13,29 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import dagger.hilt.android.AndroidEntryPoint;
-import ru.graphorismo.regularburgershop.databinding.FragmentCouponsBinding;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import ru.graphorismo.regularburgershop.R;
 
 @AndroidEntryPoint
 public class CouponsFragment extends Fragment {
 
-    private FragmentCouponsBinding binding;
     private CouponsViewModel couponsViewModel;
-    private RecyclerView recyclerView;
     private CouponsRecyclerAdapter recyclerAdapter;
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         couponsViewModel =
                 new ViewModelProvider(this).get(CouponsViewModel.class);
 
-        binding = FragmentCouponsBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        View root = inflater.inflate(R.layout.fragment_coupons, container, false);
 
-        recyclerView = binding.fragmentCouponsRecyclerView;
-        recyclerAdapter = new CouponsRecyclerAdapter(couponsViewModel, getViewLifecycleOwner());
+
+        RecyclerView recyclerView = root.findViewById(R.id.fragmentCoupons_recyclerView);
+        recyclerAdapter = new CouponsRecyclerAdapter(couponsViewModel, disposables);
         recyclerView.setAdapter(recyclerAdapter);
-        binding.fragmentCouponsRecyclerView
-                .setLayoutManager(new LinearLayoutManager(getContext(),
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),
                         LinearLayoutManager.VERTICAL, false));
 
         observeCouponsFromViewModel();
@@ -45,13 +45,17 @@ public class CouponsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        disposables.clear();
     }
 
     private void observeCouponsFromViewModel(){
-        couponsViewModel.getCouponsLiveData().observe(getViewLifecycleOwner(), coupons -> {
-            recyclerAdapter.setCoupons(coupons);
-        });
+        disposables.add(
+                couponsViewModel.getShowedCouponsBehaviorSubject()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(coupons -> {
+                            recyclerAdapter.setCoupons(coupons);
+                        })
+        );
     }
 
 

@@ -6,6 +6,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -15,6 +19,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import ru.graphorismo.regularburgershop.data.Coupon;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
 import ru.graphorismo.regularburgershop.data.local.room.cache.coupon.ConverterBetweenCouponAndCouponCacheData;
@@ -28,27 +33,34 @@ import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.Unsucces
 @HiltViewModel
 public class CouponsViewModel extends ViewModel {
 
-    private final MutableLiveData<Coupon> chosenCouponLiveData = new MutableLiveData<>();
-    private final MutableLiveData<List<Coupon>> couponsLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Throwable> exceptionLiveData = new MutableLiveData<>();
-    private final IRemoteDataRepository remoteDataRepository;
+    private final BehaviorSubject<Coupon> chosenCouponBehaviorSubject =
+            BehaviorSubject.create();
+    private final BehaviorSubject<List<Coupon>> showedCouponsBehaviorSubject =
+            BehaviorSubject.create();
+
     private final ILocalDataRepository localDataRepository;
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     private static final String TAG = "CouponsViewModel";
 
     @Inject
-    public CouponsViewModel(IRemoteDataRepository remoteDataRepository,
-                            ILocalDataRepository localDataRepository) {
-        this.remoteDataRepository = remoteDataRepository;
+    public CouponsViewModel(ILocalDataRepository localDataRepository) {
         this.localDataRepository = localDataRepository;
+        EventBus.getDefault().register(this);
         loadCoupons();
     }
 
-    public void onEvent(CouponsUIEvent event){
-        if(event instanceof CouponsUIEvent.CouponChosen){
-            chosenCouponLiveData.setValue(((CouponsUIEvent.CouponChosen)event).getCoupon());
-        }
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposables.clear();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void reactOnCouponChosenEvent(CouponsUIEvent.CouponChosen event){
+        chosenCouponBehaviorSubject
+                .onNext(event.getCoupon());
     }
 
     void loadCoupons(){
@@ -62,18 +74,16 @@ public class CouponsViewModel extends ViewModel {
                                                 localDataRepository)))
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(coupons -> {
-                            couponsLiveData.setValue(coupons);
-                        })
+                        .subscribe(showedCouponsBehaviorSubject::onNext)
 
         );
     }
 
-    public LiveData<Coupon> getChosenCouponLiveData() {
-        return chosenCouponLiveData;
+    public BehaviorSubject<Coupon> getChosenCouponBehaviorSubject() {
+        return chosenCouponBehaviorSubject;
     }
 
-    public LiveData<List<Coupon>> getCouponsLiveData() {
-        return couponsLiveData;
+    public BehaviorSubject<List<Coupon>> getShowedCouponsBehaviorSubject() {
+        return showedCouponsBehaviorSubject;
     }
 }

@@ -8,6 +8,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,10 +21,8 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
 
     private final ArrayList<Product> products = new ArrayList<>();
 
-    private final CartViewModel cartViewModel;
+    CartRecyclerAdapter() {
 
-    CartRecyclerAdapter(CartViewModel cartViewModel) {
-        this.cartViewModel = cartViewModel;
     }
 
     @NonNull
@@ -41,7 +42,7 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
                 .load(products.get(position).getPictureUrl())
                 .into(imageView);
         imageView.setOnClickListener(view -> {
-            cartViewModel.onEvent(new CartUiEvent.RemoveProductFromCart(products.get(position)));
+            EventBus.getDefault().post(new CartUiEvent.RemoveProductFromCart(products.get(position)));
         });
 
     }

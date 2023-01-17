@@ -5,29 +5,36 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import ru.graphorismo.regularburgershop.R;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.room.cart.ConverterBetweenProductAndProductCartData;
 import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
-import ru.graphorismo.regularburgershop.databinding.FragmentCartBinding;
 
 @AndroidEntryPoint
 public class CartFragment extends Fragment {
 
-    private FragmentCartBinding binding;
     private CartViewModel cartViewModel;
-    private CompositeDisposable disposables = new CompositeDisposable();
+    private final CompositeDisposable disposables = new CompositeDisposable();
     private CartRecyclerAdapter recyclerAdapter;
+    private EditText editTextCouponName;
+    private EditText editTextProductsSumPrice;
 
     private static final String TAG = "CartFragment";
 
@@ -36,24 +43,28 @@ public class CartFragment extends Fragment {
         cartViewModel =
                 new ViewModelProvider(this).get(CartViewModel.class);
 
-        binding = FragmentCartBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        View root = inflater.inflate(R.layout.fragment_cart, container, false);
 
-        binding.fragmentCartButtonBuy.setOnClickListener(view -> {
-            cartViewModel.onEvent(new CartUiEvent.BuyCart());
+        Button buttonBuy = root.findViewById(R.id.fragmentCart_button_buy);
+        buttonBuy.setOnClickListener(view -> {
+            EventBus.getDefault().post(new CartUiEvent.BuyCart());
         });
 
-        binding.fragmentCartButtonClear.setOnClickListener(view -> {
-            cartViewModel.onEvent(new CartUiEvent.ClearCart());
+        Button buttonClear = root.findViewById(R.id.fragmentCart_button_clear);
+        buttonClear.setOnClickListener(view -> {
+            EventBus.getDefault().post(new CartUiEvent.ClearCart());
         });
 
-        recyclerAdapter = new CartRecyclerAdapter(cartViewModel);
-        binding.fragmentCartRecyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
-        binding.fragmentCartRecyclerView.setAdapter(recyclerAdapter);
+        recyclerAdapter = new CartRecyclerAdapter();
+        RecyclerView recyclerView = root.findViewById(R.id.fragmentCart_recyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        recyclerView.setAdapter(recyclerAdapter);
 
 
-        binding.fragmentCartEditTextCoupon.setInputType(InputType.TYPE_NULL);
-        binding.fragmentCartEditTextSum.setInputType(InputType.TYPE_NULL);
+        editTextCouponName = root.findViewById(R.id.fragmentCart_editText_coupon);
+        editTextProductsSumPrice = root.findViewById(R.id.fragmentCart_editText_sum);
+        editTextCouponName.setInputType(InputType.TYPE_NULL);
+        editTextProductsSumPrice.setInputType(InputType.TYPE_NULL);
 
         observeProductsFormViewModel();
 
@@ -63,24 +74,30 @@ public class CartFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        disposables.clear();
     }
 
     private void observeProductsFormViewModel(){
-        cartViewModel.getProductsLiveData()
-                .observe(getViewLifecycleOwner(), productCartData -> {
-                    List<Product> products = new ArrayList<>();
-                    Integer sum = 0;
-                    for(ProductCartData cartData : productCartData){
-                        Product product =
-                                ConverterBetweenProductAndProductCartData
-                                        .convertProductCartDataToProduct(cartData);
-                        products.add(product);
-                        sum += cartData.getPrice();
-                    }
-                    recyclerAdapter.setProducts(products);
-                    if (sum > 0) binding.fragmentCartEditTextSum.setText("Sum: "+sum.toString());
-                });
+        disposables.add(
+                cartViewModel.getProductsBehaviorSubject()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(productCartData -> {
+                            List<Product> products = new ArrayList<>();
+                            Integer sum = 0;
+                            for(ProductCartData cartData : productCartData){
+                                Product product =
+                                        ConverterBetweenProductAndProductCartData
+                                                .convertProductCartDataToProduct(cartData);
+                                products.add(product);
+                                sum += cartData.getPrice();
+                            }
+                            recyclerAdapter.setProducts(products);
+                            if (sum > 0)
+                                editTextProductsSumPrice.setText("Sum: "+sum.toString());
+                            else
+                                editTextProductsSumPrice.setText("");
+                        })
+        );
 
     }
 }
