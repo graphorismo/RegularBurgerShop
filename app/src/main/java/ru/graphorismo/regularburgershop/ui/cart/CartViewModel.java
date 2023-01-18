@@ -1,5 +1,7 @@
 package ru.graphorismo.regularburgershop.ui.cart;
 
+import android.util.Log;
+
 import androidx.lifecycle.ViewModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -16,7 +18,9 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import ru.graphorismo.regularburgershop.data.Coupon;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
+import ru.graphorismo.regularburgershop.data.local.room.cart.coupon.ConverterBetweenCouponAndCartCouponData;
 import ru.graphorismo.regularburgershop.data.local.room.cart.product.CartProductData;
 
 @HiltViewModel
@@ -24,6 +28,8 @@ public class CartViewModel extends ViewModel {
 
     private static final String TAG = "CartViewModel";
     private final BehaviorSubject<List<CartProductData>> productsBehaviorSubject =
+            BehaviorSubject.create();
+    private final BehaviorSubject<Coupon> chosenCouponBehaviorSubject =
             BehaviorSubject.create();
     private final ILocalDataRepository localDataRepository;
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -33,6 +39,7 @@ public class CartViewModel extends ViewModel {
         this.localDataRepository = localDataRepository;
         EventBus.getDefault().register(this);
         loadProducts();
+        loadChosenCouponFromCart();
     }
 
     @Override
@@ -50,6 +57,27 @@ public class CartViewModel extends ViewModel {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void reactOnBuyCartEvent(CartUiEvent.BuyCart event){
         clearCart();
+    }
+
+    private void loadChosenCouponFromCart() {
+        disposables.add(
+                Observable.fromSingle(localDataRepository.getCartCoupons())
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(Observable::fromIterable)
+                        .flatMap(cartCouponData ->
+                                Observable.fromSingle(ConverterBetweenCouponAndCartCouponData
+                                        .convertFromCartCouponDataToCoupon(cartCouponData,
+                                                localDataRepository)))
+                        .toList()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(coupons -> {
+                            if(coupons.size() > 0) {
+                                chosenCouponBehaviorSubject.onNext(coupons.get(0));
+                            }else {
+                                chosenCouponBehaviorSubject.onNext(new Coupon());
+                            }
+                        })
+        );
     }
 
     private void clearCart(){
@@ -72,5 +100,9 @@ public class CartViewModel extends ViewModel {
 
     public BehaviorSubject<List<CartProductData>> getProductsBehaviorSubject() {
         return productsBehaviorSubject;
+    }
+
+    public BehaviorSubject<Coupon> getChosenCouponBehaviorSubject() {
+        return chosenCouponBehaviorSubject;
     }
 }

@@ -18,6 +18,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -67,6 +68,7 @@ public class CartFragment extends Fragment {
         editTextProductsSumPrice.setInputType(InputType.TYPE_NULL);
 
         observeProductsFormViewModel();
+        observeCouponFromViewModel();
 
         return root;
     }
@@ -77,11 +79,25 @@ public class CartFragment extends Fragment {
         disposables.clear();
     }
 
+    private void observeCouponFromViewModel(){
+        disposables.add(
+                cartViewModel
+                        .getChosenCouponBehaviorSubject()
+                        .delay(300, TimeUnit.MILLISECONDS)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(coupon -> {
+                            editTextCouponName.setText(coupon.getCouponName());
+                        })
+        );
+
+    }
+
     private void observeProductsFormViewModel(){
         disposables.add(
                 cartViewModel.getProductsBehaviorSubject()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(productCartData -> {
+
                             List<Product> products = new ArrayList<>();
                             Integer sum = 0;
                             for(CartProductData cartData : productCartData){

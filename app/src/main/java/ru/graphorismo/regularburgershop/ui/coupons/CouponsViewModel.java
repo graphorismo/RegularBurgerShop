@@ -1,7 +1,5 @@
 package ru.graphorismo.regularburgershop.ui.coupons;
 
-import android.util.Log;
-
 import androidx.lifecycle.ViewModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -64,7 +62,6 @@ public class CouponsViewModel extends ViewModel {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(coupons -> {
                             if(coupons.size() > 0) {
-                                Log.d(TAG, "loadChosenCouponFromCart: chosenCouponBehaviorSubject.onNext" + coupons.get(0).getCouponName());
                                 chosenCouponBehaviorSubject.onNext(coupons.get(0));
                             }
                         })
