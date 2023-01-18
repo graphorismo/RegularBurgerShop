@@ -17,7 +17,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
 import ru.graphorismo.regularburgershop.data.local.LocalDataRepository;
 import ru.graphorismo.regularburgershop.data.local.room.cache.CacheRoomDatabase;
-import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartRoomDatabase;
+import ru.graphorismo.regularburgershop.data.local.room.cart.CartRoomDatabase;
 import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.RemoteDataRepository;
 import ru.graphorismo.regularburgershop.data.remote.retrofit.IBurgershopApi;
@@ -56,9 +56,9 @@ public class AppModule {
 
     @Singleton
     @Provides
-    ProductCartRoomDatabase providesProductCartRoomDatabase(@ApplicationContext Context context){
+    CartRoomDatabase providesProductCartRoomDatabase(@ApplicationContext Context context){
         return Room.databaseBuilder(context,
-                ProductCartRoomDatabase.class, "productCartRoomDatabase")
+                CartRoomDatabase.class, "productCartRoomDatabase")
                 .fallbackToDestructiveMigration()
                 .build();
     }

@@ -24,8 +24,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import ru.graphorismo.regularburgershop.R;
 import ru.graphorismo.regularburgershop.data.Product;
-import ru.graphorismo.regularburgershop.data.local.room.cart.ConverterBetweenProductAndProductCartData;
-import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
+import ru.graphorismo.regularburgershop.data.local.room.cart.product.CartProductData;
+import ru.graphorismo.regularburgershop.data.local.room.cart.product.ConverterBetweenProductAndCartProductData;
 
 @AndroidEntryPoint
 public class CartFragment extends Fragment {
@@ -84,10 +84,10 @@ public class CartFragment extends Fragment {
                         .subscribe(productCartData -> {
                             List<Product> products = new ArrayList<>();
                             Integer sum = 0;
-                            for(ProductCartData cartData : productCartData){
+                            for(CartProductData cartData : productCartData){
                                 Product product =
-                                        ConverterBetweenProductAndProductCartData
-                                                .convertProductCartDataToProduct(cartData);
+                                        ConverterBetweenProductAndCartProductData
+                                                .convertCartProductDataToProduct(cartData);
                                 products.add(product);
                                 sum += cartData.getPrice();
                             }

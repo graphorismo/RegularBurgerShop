@@ -43,9 +43,12 @@ public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapte
         holder.getNameTextView().setText(products.get(position).getName());
         holder.getPriceTextView().setText(products.get(position).getPrice().toString());
         ImageView imageView = holder.getPictureImageView();
-        Picasso.get()
-                .load(products.get(position).getPictureUrl())
-                .into(imageView);
+        if (! products.get(position).getPictureUrl().isEmpty()) {
+            Picasso.get()
+                    .load(products.get(position).getPictureUrl())
+                    .into(imageView);
+        }
+
         holder.getConstraintLayout().setOnClickListener(view -> {
             EventBus.getDefault().post(new MenuUiEvent.AddProductToCart(products.get(position)));
         });

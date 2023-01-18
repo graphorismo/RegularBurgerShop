@@ -11,6 +11,13 @@ public class Product {
     private final Integer price;
     private final String pictureUrl;
 
+    public Product() {
+        title = "Dummy title";
+        name = "Dummy name";
+        price = 0;
+        pictureUrl= "";
+    }
+
     public Product(String title, String name, Integer price, String pictureUrl) {
         if(price < 0) throw new RuntimeException("Price cant be negative");
         if(name.length() == 0) throw new RuntimeException("Name cant be empty");
@@ -30,14 +37,15 @@ public class Product {
     }
 
     @Override
-    public int hashCode() {
-        return name.hashCode() + price;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return title.equals(product.title) && name.equals(product.name) && price.equals(product.price) && pictureUrl.equals(product.pictureUrl);
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
-        if (obj == null) return false;
-        else return (Objects.equals(name, ((Product) obj).name)
-                && Objects.equals(price, ((Product) obj).price));
+    public int hashCode() {
+        return Objects.hash(title, name, price, pictureUrl);
     }
 }

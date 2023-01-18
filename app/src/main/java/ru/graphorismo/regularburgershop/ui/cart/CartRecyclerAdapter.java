@@ -38,9 +38,11 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
         holder.getNameTextView().setText(products.get(position).getName());
         holder.getPriceTextView().setText(products.get(position).getPrice().toString());
         ImageView imageView = holder.getPictureImageView();
-        Picasso.get()
-                .load(products.get(position).getPictureUrl())
-                .into(imageView);
+        if(!products.get(position).getPictureUrl().isEmpty()){
+            Picasso.get()
+                    .load(products.get(position).getPictureUrl())
+                    .into(imageView);
+        }
         imageView.setOnClickListener(view -> {
             EventBus.getDefault().post(new CartUiEvent.RemoveProductFromCart(products.get(position)));
         });

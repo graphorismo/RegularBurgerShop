@@ -2,8 +2,6 @@ package ru.graphorismo.regularburgershop.ui.coupons;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -22,13 +20,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import ru.graphorismo.regularburgershop.data.Coupon;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
-import ru.graphorismo.regularburgershop.data.local.room.cache.coupon.ConverterBetweenCouponAndCouponCacheData;
-import ru.graphorismo.regularburgershop.data.local.room.cache.product.ConverterBetweenProductAndProductCacheData;
-import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.ConverterBetweenCouponAndCouponResponse;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.EmptyResponseException;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.NullNetworkResponseException;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.UnsuccessfulResponseException;
+import ru.graphorismo.regularburgershop.data.local.room.cache.coupon.ConverterBetweenCouponAndCacheCouponData;
+import ru.graphorismo.regularburgershop.data.local.room.cart.coupon.ConverterBetweenCouponAndCartCouponData;
 
 @HiltViewModel
 public class CouponsViewModel extends ViewModel {
@@ -46,6 +39,7 @@ public class CouponsViewModel extends ViewModel {
     @Inject
     public CouponsViewModel(ILocalDataRepository localDataRepository) {
         this.localDataRepository = localDataRepository;
+        loadChosenCouponFromCart();
         EventBus.getDefault().register(this);
         loadCoupons();
     }
@@ -57,10 +51,43 @@ public class CouponsViewModel extends ViewModel {
         EventBus.getDefault().unregister(this);
     }
 
+    private void loadChosenCouponFromCart() {
+        disposables.add(
+                Observable.fromSingle(localDataRepository.getCartCoupons())
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(Observable::fromIterable)
+                        .flatMap(cartCouponData ->
+                                Observable.fromSingle(ConverterBetweenCouponAndCartCouponData
+                                        .convertFromCartCouponDataToCoupon(cartCouponData,
+                                                localDataRepository)))
+                        .toList()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(coupons -> {
+                            if(coupons.size() > 0) {
+                                Log.d(TAG, "loadChosenCouponFromCart: chosenCouponBehaviorSubject.onNext" + coupons.get(0).getCouponName());
+                                chosenCouponBehaviorSubject.onNext(coupons.get(0));
+                            }
+                        })
+        );
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void reactOnCouponChosenEvent(CouponsUIEvent.CouponChosen event){
         chosenCouponBehaviorSubject
                 .onNext(event.getCoupon());
+        saveASingleChosenCoupon(event.getCoupon());
+
+    }
+
+    private void saveASingleChosenCoupon(Coupon coupon){
+        disposables.add(
+                Observable.fromAction(()->{
+                    localDataRepository.clearSavedCartCoupons();
+                    localDataRepository.saveCouponIntoCart(coupon);
+                })
+                        .subscribeOn(Schedulers.io())
+                        .subscribe()
+        );
     }
 
     void loadCoupons(){
@@ -69,8 +96,8 @@ public class CouponsViewModel extends ViewModel {
                         .subscribeOn(Schedulers.io())
                         .flatMap(Observable::fromIterable)
                         .flatMap(couponCacheData ->
-                                Observable.fromSingle(ConverterBetweenCouponAndCouponCacheData
-                                        .convertFromCouponCacheDataToCoupon(couponCacheData,
+                                Observable.fromSingle(ConverterBetweenCouponAndCacheCouponData
+                                        .convertFromCacheCouponDataToCoupon(couponCacheData,
                                                 localDataRepository)))
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())

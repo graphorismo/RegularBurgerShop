@@ -1,18 +1,19 @@
-package ru.graphorismo.regularburgershop.data.local.room.cart;
+package ru.graphorismo.regularburgershop.data.local.room.cart.product;
 
 import ru.graphorismo.regularburgershop.data.Product;
 
-public abstract class ConverterBetweenProductAndProductCartData {
+public abstract class ConverterBetweenProductAndCartProductData {
 
-    public static ProductCartData convertProductToProductCartData(Product product){
-        return new ProductCartData(
+    public static CartProductData convertProductToCartProductData(Product product){
+        return new CartProductData(
                 product.getTitle(),
                 product.getName(),
+
                 product.getPrice(),
                 product.getPictureUrl());
     }
 
-    public static Product convertProductCartDataToProduct(ProductCartData productCartData){
+    public static Product convertCartProductDataToProduct(CartProductData productCartData){
         return new Product(
                 productCartData.getTitle(),
                 productCartData.getName(),

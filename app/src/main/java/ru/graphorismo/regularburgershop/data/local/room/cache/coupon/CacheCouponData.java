@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 import java.util.UUID;
 
 @Entity
-public class CouponCacheData {
+public class CacheCouponData {
     @PrimaryKey
     @NonNull
     private UUID uuid;
@@ -18,7 +18,7 @@ public class CouponCacheData {
     @NonNull
     private  Integer discountPercents;
 
-    public CouponCacheData(@NonNull String couponName, @NonNull String productName, @NonNull Integer discountPercents) {
+    public CacheCouponData(@NonNull String couponName, @NonNull String productName, @NonNull Integer discountPercents) {
         this.uuid = UUID.randomUUID();
         this.couponName = couponName;
         this.productName = productName;

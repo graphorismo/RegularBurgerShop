@@ -1,7 +1,5 @@
 package ru.graphorismo.regularburgershop.ui.cart;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -19,13 +17,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
-import ru.graphorismo.regularburgershop.data.local.room.cart.ProductCartData;
+import ru.graphorismo.regularburgershop.data.local.room.cart.product.CartProductData;
 
 @HiltViewModel
 public class CartViewModel extends ViewModel {
 
     private static final String TAG = "CartViewModel";
-    private final BehaviorSubject<List<ProductCartData>> productsBehaviorSubject =
+    private final BehaviorSubject<List<CartProductData>> productsBehaviorSubject =
             BehaviorSubject.create();
     private final ILocalDataRepository localDataRepository;
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -72,7 +70,7 @@ public class CartViewModel extends ViewModel {
         );
     }
 
-    public BehaviorSubject<List<ProductCartData>> getProductsBehaviorSubject() {
+    public BehaviorSubject<List<CartProductData>> getProductsBehaviorSubject() {
         return productsBehaviorSubject;
     }
 }

@@ -10,7 +10,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -19,6 +18,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -53,9 +53,11 @@ public class CouponsRecyclerAdapter extends RecyclerView.Adapter<CouponsRecycler
         holder.getDiscountEditText()
                 .setText("-"+coupons.get(position).getDiscountPercents().toString()+"%");
         ImageView imageView = holder.getProductImageView();
-        Picasso.get()
-                .load(coupons.get(position).getProduct().getPictureUrl())
-                .into(imageView);
+        if(!coupons.get(position).getProduct().getPictureUrl().isEmpty()){
+            Picasso.get()
+                    .load(coupons.get(position).getProduct().getPictureUrl())
+                    .into(imageView);
+        }
         holder.getCardView().setCardBackgroundColor(Color.WHITE);
         holder.getCardView().setOnClickListener(view -> {
             EventBus.getDefault().post(new CouponsUIEvent.CouponChosen(coupons.get(position)));
@@ -81,6 +83,7 @@ public class CouponsRecyclerAdapter extends RecyclerView.Adapter<CouponsRecycler
     void observeChosenCouponFromViewModel(){
         disposables.add(
                 couponsViewModel.getChosenCouponBehaviorSubject()
+                        .delay(300, TimeUnit.MILLISECONDS)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe((coupon)->{
                             Integer position = coupons.indexOf(coupon);

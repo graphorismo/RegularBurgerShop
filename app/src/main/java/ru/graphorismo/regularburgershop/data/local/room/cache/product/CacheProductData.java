@@ -1,4 +1,4 @@
-package ru.graphorismo.regularburgershop.data.local.room.cart;
+package ru.graphorismo.regularburgershop.data.local.room.cache.product;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
@@ -7,10 +7,10 @@ import androidx.room.PrimaryKey;
 import java.util.UUID;
 
 @Entity
-public class ProductCartData {
+public class CacheProductData {
     @PrimaryKey
     @NonNull
-    private  UUID uuid;
+    private UUID uuid;
     @NonNull
     private  String title;
     @NonNull
@@ -20,7 +20,8 @@ public class ProductCartData {
     @NonNull
     private String pictureUrl;
 
-    public ProductCartData(String title, String name, Integer price, String pictureUrl) {
+    public CacheProductData(@NonNull String title, @NonNull String name,
+                            @NonNull Integer price, @NonNull String pictureUrl) {
         this.uuid = UUID.randomUUID();
         this.title = title;
         this.name = name;
@@ -28,22 +29,27 @@ public class ProductCartData {
         this.pictureUrl = pictureUrl;
     }
 
+    @NonNull
     public UUID getUuid() {
         return uuid;
     }
 
+    @NonNull
     public String getTitle() {
         return title;
     }
 
+    @NonNull
     public String getName() {
         return name;
     }
 
+    @NonNull
     public Integer getPrice() {
         return price;
     }
 
+    @NonNull
     public String getPictureUrl() {
         return pictureUrl;
     }

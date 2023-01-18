@@ -2,8 +2,6 @@ package ru.graphorismo.regularburgershop.ui.menu;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -20,15 +18,10 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
-import io.reactivex.rxjava3.subjects.Subject;
 import ru.graphorismo.regularburgershop.data.Product;
 import ru.graphorismo.regularburgershop.data.local.ILocalDataRepository;
-import ru.graphorismo.regularburgershop.data.local.room.cache.product.ConverterBetweenProductAndProductCacheData;
+import ru.graphorismo.regularburgershop.data.local.room.cache.product.ConverterBetweenProductAndCacheProductData;
 import ru.graphorismo.regularburgershop.data.remote.IRemoteDataRepository;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.ConverterProductResponseToProduct;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.EmptyResponseException;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.NullNetworkResponseException;
-import ru.graphorismo.regularburgershop.data.remote.retrofit.exceptions.UnsuccessfulResponseException;
 
 
 @HiltViewModel
@@ -78,7 +71,7 @@ public class MenuViewModel extends ViewModel {
                 Observable.fromSingle(localDataRepository.getCacheProductUnderTitle(title))
                         .subscribeOn(Schedulers.io())
                         .flatMap(Observable::fromIterable)
-                        .map(ConverterBetweenProductAndProductCacheData::convertFromProductCacheDataToProduct)
+                        .map(ConverterBetweenProductAndCacheProductData::convertFromCacheProductDataToProduct)
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(productsBehaviorSubject::onNext,
